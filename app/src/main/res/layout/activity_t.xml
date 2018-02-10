@@ -1,0 +1,73 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:orientation="vertical" 
+     android:layout_width="fill_parent" 
+     android:layout_height="fill_parent">
+     
+ 
+    <LinearLayout
+        android:layout_width="fill_parent"  
+        android:layout_height="wrap_content"  
+        android:orientation="vertical"
+        android:minHeight="100dp"
+        android:gravity="bottom|center_horizontal" 
+        android:background="@color/red">  
+  
+	    <LinearLayout
+	        android:layout_width="fill_parent"  
+	        android:layout_height="wrap_content"  
+	        android:orientation="horizontal"
+	        android:gravity="center" 
+	        android:background="@color/blue">  
+	        <TextView  
+	            android:layout_width="wrap_content"  
+	            android:layout_height="wrap_content"  
+	            android:layout_marginRight="10dp"  
+	            android:text="右边" />  
+        </LinearLayout>  
+          <TextView  
+              android:layout_width="wrap_content"  
+              android:layout_height="wrap_content"  
+              android:layout_marginRight="10dp"  
+              android:text="右边\n$11.096.00" />  
+    </LinearLayout>  
+     
+ 
+    <LinearLayout
+        android:layout_width="fill_parent"  
+        android:layout_height="wrap_content"  
+        android:orientation="horizontal"
+        android:minHeight="100dp"
+        android:background="@color/red">  
+  
+          <TextView  
+              android:layout_width="0dp"  
+              android:layout_height="wrap_content"  
+              android:layout_weight="1"  
+              android:text="afassdasfsa asdf要要苛 " />  
+          <TextView  
+              android:layout_width="wrap_content"  
+              android:layout_height="wrap_content"  
+              android:layout_marginRight="10dp"  
+              android:gravity="end"
+              android:text="右边\nfassafsad sds as sasf $11.096.00" />  
+    </LinearLayout>  
+     
+    <CheckBox  
+        android:layout_width="wrap_content"  
+        android:layout_height="wrap_content"  
+        android:layout_marginRight="10dp"  
+        android:layout_gravity="left"  
+        android:text="左边" />  
+    <CheckBox  
+        android:layout_width="wrap_content"  
+        android:layout_height="wrap_content"  
+        android:layout_marginRight="10dp"  
+        android:layout_gravity="center"  
+        android:text="居中" />  
+    <CheckBox  
+        android:layout_width="wrap_content"  
+        android:layout_height="wrap_content"  
+        android:layout_marginRight="10dp"  
+        android:layout_gravity="right"  
+        android:text="右边" />  
+</LinearLayout>

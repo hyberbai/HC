@@ -1,0 +1,110 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+    
+    <LinearLayout
+        android:id="@+id/ll_head_bar"
+        android:orientation="vertical"
+            android:layout_height="32dp"
+        style="@style/home_header_linear_layout"
+        android:visibility="visible">
+
+	    <LinearLayout
+            android:background="#00FFFFFF" 
+		    android:layout_width="match_parent"
+		    android:layout_height="0dp"
+            android:layout_weight="1"
+		    android:gravity="center">
+	        
+	        <ImageButton
+	            android:id="@+id/ib_app"
+	            style="@style/header_button_left"
+	            android:layout_marginRight="10dip"
+	            android:visibility="gone"
+	            android:background="@drawable/ic_launcher" />
+	
+	        <TextView
+	            style="@style/header_text_view"
+	            android:text="@string/app_name" />
+	
+	        <ImageButton
+	            android:id="@+id/ib_options"
+	            style="@style/header_button_right"
+	            android:layout_marginLeft="8dip"
+	            android:background="@drawable/options"
+	            android:onClick="onOptionsClick" 
+	            android:visibility="gone"
+	            />
+	    </LinearLayout>
+	    
+        <View
+		    android:layout_width="match_parent"
+		    android:layout_height="1px"
+            android:background="#20FFFFFF"
+		    />
+    </LinearLayout> 
+    <FrameLayout 
+        android:layout_width="fill_parent"
+        android:background="@drawable/home_header"
+        android:layout_height="60dp" >
+        
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+            
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                style="@style/header_text_view"
+                android:text="@string/app_name"
+                android:visibility="gone" />
+            
+	        <LinearLayout
+	            android:id="@+id/ll_head_text"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="bottom"
+	            android:padding="5dp">
+	            
+	            <TextView
+                    android:id="@+id/tv_info1"
+	                style="@style/home_header_text_view"
+	                android:layout_width="0dp"
+	                android:layout_weight="1"
+                    android:lineSpacingMultiplier="1.2"
+	                android:text="辽宁冠美-四平市第一人民医院\n业务员：刘芳芳" />
+	    
+	            <TextView
+                    android:id="@+id/tv_info2"
+	                style="@style/home_header_text_view"
+	                android:layout_gravity="center"
+	                android:layout_width="wrap_content"
+	                android:textSize="12sp"
+	                android:text="2017-03-15 星期二" />
+	        </LinearLayout>
+        </LinearLayout>
+        
+    </FrameLayout>
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="1dp"
+        android:scrollbarStyle="outsideOverlay" >
+
+        <hylib.widget.VGWrap
+            android:id="@+id/vw_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </ScrollView>
+    
+</LinearLayout>

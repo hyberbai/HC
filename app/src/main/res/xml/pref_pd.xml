@@ -1,0 +1,31 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- <CheckBoxPreference -->
+    <!-- android:defaultValue="true" -->
+    <!-- android:key="example_checkbox" -->
+    <!-- android:summary="@string/pref_description_social_recommendations" -->
+    <!-- android:title="@string/pref_title_social_recommendations" /> -->
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue=""
+        android:key="server_addr"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/action_server_addr" />
+
+    <Preference
+        android:defaultValue=""
+        android:key="conn_server"
+        android:summary=""
+        android:title="@string/action_conn_server" />
+    
+    <Preference
+        android:defaultValue=""
+        android:key="login"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/action_logout" />
+
+</PreferenceScreen>

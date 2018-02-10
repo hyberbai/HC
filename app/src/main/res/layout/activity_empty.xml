@@ -1,0 +1,80 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+    
+    <LinearLayout
+        android:id="@+id/ll_head_bar"
+        style="@style/header_linear_layout"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:visibility="visible" >
+
+        <ImageButton
+            android:id="@+id/ib_back"
+            style="@style/header_button_left"
+            android:layout_marginEnd="10dip"
+            android:background="@drawable/back" 
+            android:onClick="onClick"/>
+        
+        <LinearLayout
+            android:id="@+id/ll_title"
+            android:background="@color/transparent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:visibility="visible" >
+            <TextView
+                android:id="@+id/tv_title"
+                android:textSize="@dimen/header_title_text_size"
+                android:textColor="@color/title_text_color"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        
+        <ImageButton
+            android:id="@+id/ib_options"
+            style="@style/header_button_right"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/options"
+            android:onClick="onOptionsClick" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/item_bg_color"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:visibility="visible" >
+        
+        <TextView
+            android:id="@+id/tv_Stat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/ib_ok"
+            style="@style/button"
+            android:layout_gravity="end"
+            android:onClick="onClick"
+            android:text="@string/ok" />
+        
+        <Button
+            android:id="@+id/ib_cancel"
+            style="@style/button"
+            android:layout_gravity="end"
+            android:onClick="onClick"
+            android:text="@string/cancel" />
+    </LinearLayout>
+        
+    
+</LinearLayout>

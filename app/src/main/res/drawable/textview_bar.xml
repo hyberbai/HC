@@ -1,0 +1,10 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <solid android:color="@color/item_bg_color" />
+
+<!--     <stroke -->
+<!--         android:width="1dip" -->
+<!--         android:color="#C0303F30" /> -->
+
+
+</shape>

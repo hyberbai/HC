@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_bg"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:layout_width="270dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/tips_bg"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFEE00"
+        android:padding="0dp"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+</LinearLayout>

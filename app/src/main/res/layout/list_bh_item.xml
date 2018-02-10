@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_bg_color"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <TextView
+            android:id="@+id/item_info"
+            style="@style/list_bh_item_text"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:singleLine="false"
+            android:textSize="@dimen/list_item_text_size" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btn_sub"
+                style="@style/btn_num"
+                android:background="@drawable/btn_num_bg"
+                android:text="-" />
+
+            <TextView
+                android:id="@+id/tv_num"
+                style="@style/tv_num"/>
+
+            <Button
+                android:id="@+id/btn_add"
+                style="@style/btn_num"
+                android:background="@drawable/btn_num_bg"
+                android:text="+" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_item"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/bar" />
+
+</LinearLayout>

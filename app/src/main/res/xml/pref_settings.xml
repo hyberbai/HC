@@ -1,0 +1,52 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- <CheckBoxPreference -->
+    <!-- android:defaultValue="true" -->
+    <!-- android:key="example_checkbox" -->
+    <!-- android:summary="@string/pref_description_social_recommendations" -->
+    <!-- android:title="@string/pref_title_social_recommendations" /> -->
+
+    <ListPreference
+        android:key="server_addr"
+        android:singleLine="true"
+        android:title="@string/action_server_addr" />
+
+    <Preference
+        android:defaultValue=""
+        android:key="conn_server"
+        android:summary=""
+        android:title="@string/action_conn_server" />
+    
+    <Preference
+        android:key="report_open"
+        android:singleLine="true"
+        android:title="@string/action_report_open" />
+    
+    <Preference
+        android:key="cust"
+        android:singleLine="true"
+        android:title="@string/action_set_cust" />
+    
+    <Preference
+        android:key="stock"
+        android:singleLine="true"
+        android:title="@string/action_set_stock" />
+    
+    <Preference
+        android:key="printer"
+        android:singleLine="true"
+        android:title="@string/action_printer" />
+    
+    <Preference
+        android:key="db_reset"
+        android:singleLine="true"
+        android:title="@string/action_db_reset" />
+    
+    <Preference
+        android:defaultValue=""
+        android:key="login"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/action_logout" />
+
+</PreferenceScreen>

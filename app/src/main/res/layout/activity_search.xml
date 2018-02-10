@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_head_bar"
+        style="@style/header_linear_layout"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:visibility="visible" >
+
+        <ImageButton
+            android:id="@+id/ib_back"
+            style="@style/header_button_left"
+            android:layout_marginEnd="10dip"
+            android:background="@drawable/back" />
+        <hylib.widget.HyEditText
+            android:id="@+id/et_input"
+            style="@style/search_text_view"
+            android:layout_marginRight="5dp"
+            android:padding="5dp"
+            android:hint="@string/act_search" />
+      <!--   <EditText
+            android:id="@+id/et_input"
+            style="@style/search_view"/>
+        <ImageButton
+            android:id="@+id/ib_search"
+            style="@style/header_button_right"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/searc -->h" />
+        
+    </LinearLayout>
+
+     <hylib.widget.HyListView
+         style ="@style/list_view"
+         android:id="@+id/lv_search"
+         android:layout_width="fill_parent"
+         android:layout_height="0dp"
+         android:layout_weight="1"
+         android:cacheColorHint="#00000000"
+         android:listSelector="#00000000"
+     />
+
+
+</LinearLayout>

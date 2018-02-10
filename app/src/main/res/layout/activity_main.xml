@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_head_bar"
+        style="@style/header_linear_layout"
+        android:padding="5dp"
+        android:visibility="gone" >
+
+        <ImageButton
+            android:id="@+id/ib_app"
+            style="@style/header_button_left"
+            android:layout_marginRight="10dip"
+            android:background="@drawable/ic_launcher" />
+
+        <TextView
+            style="@style/header_text_view"
+            android:text="@string/app_name" />
+
+        <ImageButton
+            android:id="@+id/ib_option"
+            style="@style/header_button_right"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/scan"
+            android:onClick="onScanClick" />
+    </LinearLayout>
+
+    <TabHost
+        android:id="@+id/tabhost"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:padding="0dip" >
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="fill_parent"
+            	android:layout_height="fill_parent"
+                android:layout_weight="1" >
+            </FrameLayout>
+
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="fill_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom"/>
+        </LinearLayout>
+
+    </TabHost>
+
+</LinearLayout>

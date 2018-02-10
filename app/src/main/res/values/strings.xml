@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">医疗耗材管理</string>
+    <string name="act_sale_title">用户出库</string>
+    <string name="act_pd_title">库存盘点</string>
+    <string name="act_sy">产品溯源</string>
+    <string name="act_bh">补货</string>
+    <string name="act_product_replace">产品替换</string>
+    <string name="act_his_list">历史记录</string>
+    <string name="act_jd_bill">金蝶单据</string>
+    <string name="act_more">更多</string>
+    <string name="act_search">搜索</string>
+    <string name="action_settings">设置</string>
+    <string name="action_options">选项</string>
+    <string name="action_server_addr">服务器地址</string>
+    <string name="action_upload">上传数据</string>
+    <string name="action_syn_data">同步数据</string>
+    <string name="action_conn_server">连接服务器</string>
+    <string name="action_report_open">报表打开方式</string>
+    <string name="action_set_cust">设置客户</string>
+    <string name="action_set_stock">设置库位</string>
+    <string name="action_printer">设置打印机</string>
+    <string name="action_user">用户</string>
+    
+    <string name="action_db">数据维护</string>
+    <string name="action_db_reset">重建数据库</string>
+    <string name="action_db_backup">数据备份</string>
+    <string name="action_db_restore">数据恢复</string>
+    <string name="action_logout">退出登录</string>
+    
+    <string name="dlg_pd_note_title">盘点情况</string>
+    <string name="dlg_edit">编辑</string>
+    
+    <string name="s_ok">正常</string>
+    <string name="s_wrong">异况</string>
+    <string name="s_extra">多出</string>
+    
+    
+    <string name="pd_add">新增盘点</string>
+    <string name="pd_view">浏览</string>
+    
+    <string name="submit">提交</string>
+    <string name="back">返回</string>
+    <string name="reset">重置</string>
+    <string name="clear">清空</string>
+    <string name="add">添加</string>
+    <string name="delete">删除</string>
+    <string name="print">打印</string>
+    <string name="report">报表</string>
+    
+    
+    <string name="price">单价</string>
+    <string name="qty">数量</string>
+    <string name="amount">金额</string>
+    
+    <string name="add_product">添加替换产品</string>
+    <string name="add_pd">创建盘库单</string>
+    
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="close">关闭</string>
+    <string name="error">错误</string>
+    <string name="info">信息</string>
+    <string name="note">备注</string>
+    <string name="addnew">新增</string>
+    
+    <string name="act_login_title">系统登录</string>
+    
+    
+    <string name="scan_message">连接扫码头异常!</string>
+    <string name="dialog_ok">确认</string>
+</resources>
