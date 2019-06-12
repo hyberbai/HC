@@ -2,13 +2,9 @@ package hylib.toolkits;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-
-import android.R.integer;
 
 public class ArrayTools {
 
@@ -37,6 +33,15 @@ public class ArrayTools {
         return result;
     }
 
+    public static <T> void Init(T[] arr, int size, T initvalue)
+    {
+        for (int i = 0; i < size; i++) arr[i] = initvalue;
+    }
+
+    public static <T> void Init(T[] arr, T initvalue)
+    {
+        for (int i = 0; i < arr.length; i++) arr[i] = initvalue;
+    }
 
     public static <T> T[] Copy(T[] A, int index, int len)
     {

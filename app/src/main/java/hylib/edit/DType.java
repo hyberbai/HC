@@ -1,7 +1,8 @@
 package hylib.edit;
 
+import java.util.Date;
+
 import hylib.toolkits.gv;
-import hylib.util.ParamList;
 
 
 public class DType {
@@ -44,7 +45,29 @@ public class DType {
 				valueType == Image ? "img" :	
 				"";
 	}
-	
+
+	public static Class<?> getClass(int valueType) {
+		if (valueType == Num) return Integer.class;
+		if (valueType == Int) return Integer.class;
+		if (valueType == Dec) return Double.class;
+		if (valueType == Money) return Double.class;
+		if (valueType == Time) return Date.class;
+		if (valueType == Date) return Date.class;
+		if (valueType == DateTime) return Date.class;
+		if (valueType == Bool) return boolean.class;
+		if (valueType == Image) return byte[].class;
+		return null;
+	}
+
+	public static int valueOf(Class<?> cls) {
+		if (cls == Integer.class) return Int;
+		if (cls == Double.class) return Dec;
+		if (cls == Date.class) return Date;
+		if (cls == boolean.class) return Bool;
+		if (cls == byte[].class) return Image;
+		return 0;
+	}
+
 	public static Object ConvertType(Object value, int dataType) {
 		if(dataType == STRING) return gv.StrVal(value);
 		if(dataType == Int || dataType == Num) return gv.IntVal(value);

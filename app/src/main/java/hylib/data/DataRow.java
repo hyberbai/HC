@@ -1,24 +1,13 @@
 package hylib.data;
 
+import java.util.Date;
+
 import hylib.edit.DType;
 import hylib.toolkits.ExProc;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.util.Param;
 import hylib.util.ParamList;
-
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.sql.RowSet;
-
-import junit.framework.Assert;
-
-import android.R.bool;
-import android.R.integer;
-import android.R.plurals;
-import android.renderscript.Element.DataType;
 
 public class DataRow {
 	// 定义该行记录在table所处的行数

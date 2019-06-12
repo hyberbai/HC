@@ -42,7 +42,7 @@ public abstract class ActHisList extends ActBase {
 	protected int LID_START = 10000;
 	protected int[] CIDs;
 	protected String pageNames;
-	protected SparseArray<HyListView> mapLV = new SparseArray<>();
+	protected SparseArray<HyListView> mapLV = new SparseArray<HyListView>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,12 +245,14 @@ public abstract class ActHisList extends ActBase {
 			FillPageItem(CID);
 	}
     
-    public void ActRefresh() {
+    public boolean ActRefresh() {
     	try {
     		LoadData();
     		FillPages();
+			return true;
 		} catch (Exception e) {
 			ExProc.Show(e);
+			return false;
 		}
 	}
     

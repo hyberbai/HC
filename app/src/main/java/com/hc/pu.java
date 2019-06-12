@@ -1,54 +1,43 @@
 package com.hc;
 
-import java.lang.reflect.Field;
+import android.app.Dialog;
 
-import com.hc.*;
 import com.hc.dal.Bill;
 import com.hc.setting.pSetting;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import hylib.data.DataRow;
-import hylib.data.DataRowCollection;
 import hylib.data.DataTable;
-import hylib.toolkits.*;
+import hylib.toolkits.gs;
+import hylib.toolkits.gv;
 import hylib.util.ActionList;
 import hylib.util.ParamList;
-import android.R.bool;
-import android.app.Dialog;
 
 
 //工程函数类
 public class pu {
-	public static String stock_id = "";
-	public static String stock_name = "";
-	
-//	public static String DEFAULT_SERVER_ADDR = "hy000000.zicp.net:46551";
-//	public static String DEFAULT_IP_ADDR = "hy000000.zicp.net";
-	
-	public static String DEFAULT_SERVER_ADDR = "hy000000.zicp.net:46551";
-	public static String DEFAULT_IP_ADDR = "hy000000.zicp.net:46551";
-	
-	public static String DEFAULT_IP_PORT = "46551";
-	public static String TEST_SERVER_ADDR = DEFAULT_IP_ADDR +  ":" + DEFAULT_IP_PORT;
+	public static String DEFAULT_SERVER_ADDR = "218.25.17.250:2603";
+
+	public static String DEFAULT_IP_PORT = "2603";
 	public static String TEMP_PATH = "/sdcard/";
 	
 	public static DataTable dtServerAddrs = new DataTable("ServerAddrs", "name|addr", new Object[][] {
-		new Object[] { "内网地址", "192.168.1.220:2603" },
-		new Object[] { "外网地址", "hy000000.zicp.net:46551" },
-		new Object[] { "综合测试", "192.168.1.200:2603" },
-		new Object[] { "程序测试", "192.168.1.222:2603" },
+		//new Object[] { "内网地址", "192.168.1.200:2603" },
+		new Object[] { "外网地址", DEFAULT_SERVER_ADDR },
+		//new Object[] { "综合测试", "192.168.1.200:2603" },
+		new Object[] { "系统测试", "192.168.1.222:2603" },
 		new Object[] { "<自定义> ", "" },
 	});
 	
 	public static boolean IsTest = false;
+	public static Object pObj;
 
 	public static void Init() {
+		if(pObj != null) return;
+		pObj = "HC";
 		pSetting.Init();
 		LoadActionList();
 	}
@@ -84,7 +73,7 @@ public class pu {
     // 获得取流水号
     public static String getSNo(String barcode) {
     	barcode = barcode.trim(); 
-    	Matcher matcher = Pattern.compile("NO.([0-9]{6,})").matcher(barcode);
+    	Matcher matcher = Pattern.compile("[A-Zo]{1,4}\\.([\\d]{6,12})").matcher(barcode);
 
     	String SNo = "";
     	if(matcher.find()) // 扫码流水号
@@ -93,7 +82,7 @@ public class pu {
         	matcher = Pattern.compile("^([0-9]+)").matcher(barcode);    
         	if(matcher.find()) {	// 手工输入流水号，补全6位
             	SNo = GetFullSN(matcher.group(1));
-        	} else {	// 
+        	} else {
         		matcher = Pattern.compile("^.([0-9]+)").matcher(barcode);
             	if(matcher.find())	// 手工输入流水号，不补全
                 	SNo = matcher.group(1);
@@ -109,6 +98,8 @@ public class pu {
 
     public static void LoadActionList()
     {
+		if(!ActionList.isInstEmpty()) return;
+		ActionList.Init();
         ActionList.Add("确定", "OK");
         ActionList.Add("取消", "Cancel");
         ActionList.Add("提交", "Submit");

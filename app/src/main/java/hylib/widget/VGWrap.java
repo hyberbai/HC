@@ -1,15 +1,12 @@
 package hylib.widget;
 
-import hylib.toolkits._D;
-import hylib.toolkits.gv;
-import android.R.integer;
 import android.content.Context;
-import android.hardware.Camera.Size;
-import android.print.PrintAttributes.Margins;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import hylib.toolkits._D;
+import hylib.toolkits.gv;
 
 public class VGWrap extends LinearLayout { 
     private int mMargin;
@@ -113,6 +110,7 @@ public class VGWrap extends LinearLayout {
                 _D.Out(x , y );
             } 
         } else if (Mode == MODE_TOOLBAR) {
+            if(count == 0) return;
         	float cellWidth = isOutWidth ? maxCW + mMargin : width / count;
             for (int i = 0; i < count; i++) { 
             	   

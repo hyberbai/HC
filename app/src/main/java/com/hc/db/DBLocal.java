@@ -1,31 +1,29 @@
 package com.hc.db;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
+import android.util.SparseIntArray;
 
 import com.hc.MyApp;
 
-import android.R.bool;
-import android.R.integer;
-import android.database.Cursor;
-import android.database.sqlite.*;
-import android.util.SparseIntArray;
-import android.view.ViewDebug.IntToString;
 import hylib.data.DataColumn;
 import hylib.data.DataColumnCollection;
 import hylib.data.DataRow;
 import hylib.data.DataTable;
 import hylib.data.TableUtils;
 import hylib.edit.DType;
-import hylib.toolkits.*;
-import hylib.util.ParamList;
+import hylib.toolkits.ExProc;
+import hylib.toolkits.gi;
+import hylib.toolkits.gs;
+import hylib.toolkits.gv;
 
 public class DBLocal {
     public static DBHelper dbHelper;  
     
     public static void Init() {
+		if(dbHelper != null) return;
     	dbHelper = new DBHelper(MyApp.CurrentActivity());
 	}
     

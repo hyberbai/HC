@@ -1,14 +1,16 @@
 package com.hc;
 
+import com.hc.dal.d;
+import com.hc.db.DBLocal;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hc.dal.d;
-
 import hylib.data.DataRow;
 import hylib.data.DataTable;
+import hylib.toolkits.ExProc;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.toolkits.type;
@@ -22,6 +24,7 @@ public class SysData {
 	public static int CustID;	// 客户ID	
 	public static String CustName;	// 客户名称	
 	public static int StockID;	// 库位ID
+	public static int MainStockID;	// 主仓库位ID
 	public static String StockName;	// 库位ID
 	public static String Printer;	// 打印机
 	public static ParamList ModsRightTree; // 模块权限
@@ -48,7 +51,7 @@ public class SysData {
 	public static int TEST_OP_ID = 999998;
 
 	public static String tpwd = "t1809";
-	
+
 	// 测试模式
 	public static boolean IsTest;
 
@@ -72,7 +75,7 @@ public class SysData {
 		{
 			CustID = 0;
 			CustName = "";
-			setStock(0, false);
+			//setStock(0, false);
 		}
 		else
 		{
@@ -141,6 +144,8 @@ public class SysData {
 		}
 		dtUserStock = getFilterUserTable(d.dtStock, stocks);
 		dtUserCust = getFilterUserTable(d.dtCust, custs);
+
+        MainStockID = DBLocal.ExecuteIntScalar("Select FItemID from Stock where FName = '耗材主仓库'");
 		
 		if(dtUserCust.FindRow("FItemID", CustID) == null) setCust(0, false);
 		if(dtUserCust.getRowCount() == 1) setCust(dtUserCust.getRow(0).getIntVal("FItemID"), true);
@@ -215,4 +220,37 @@ public class SysData {
 		}
 		return false;
     }
+    
+    public static void LoadData(DataRow dr, String pwd){
+		op_id = dr.getIntVal("FUserID");
+		op_name = dr.getStrVal("FName");
+		emp_id = d.getEmpID(op_id);
+		ug_name= dr.getStrVal("FGroup");
+		oa_account =  dr.getStrVal("OA");
+		RT = dr.getStrVal("RT");
+		gRT = dr.getStrVal("gRT");
+		if(RT.isEmpty()) RT = gRT;
+
+		if(ug_name.indexOf("销售") >= 0)
+			ug_id = UG_YWY;
+		else if(ug_name.indexOf("外部") >= 0)
+			ug_id = UG_OUT;
+		else if(ug_name.indexOf("管理") >= 0)
+			ug_id = UG_ADMIN;
+		else
+			ug_id = 0;
+
+		tryTestPwdLoad(pwd);
+
+		try {
+			LoadRTs();
+		} catch (Exception e) {
+			ExProc.Show(e);
+		}
+	}
+
+	public static void ReloadUser(){
+		DataRow dr = d.findUser(op_name);
+		LoadData(dr, "");
+	}
 }

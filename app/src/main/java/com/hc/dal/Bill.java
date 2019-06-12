@@ -1,26 +1,17 @@
 package com.hc.dal;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
-import android.R.integer;
 import android.graphics.Color;
-import android.text.Html;
-import android.text.Spanned;
 
-import com.hc.ID;
 import com.hc.SysData;
-import com.hc.pu;
 import com.hc.db.DBLocal;
 import com.hc.mo.bill.ProductRelpace;
 
+import java.util.Date;
+
 import hylib.data.DataRow;
-import hylib.data.DataRowCollection;
 import hylib.data.DataTable;
 import hylib.toolkits.ArrayTools;
 import hylib.toolkits.SpannableStringHelper;
-import hylib.toolkits._D;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.util.Param;
@@ -120,10 +111,20 @@ public class Bill {
         if (ExtBTID == BTID_DB_FH) return "发货";
         return "";
     }
+    public static String jdNameOf(int ExtBTID)
+    {
+        if (ExtBTID == BTID_WTDX) return "代销";
+        return nameOf(ExtBTID);
+    }
 
     public static String nameOf(int BTID, int ETID)
     {
     	return nameOf(getExtBTID(BTID, ETID));
+    }
+
+    public static String jdNameOf(int BTID, int ETID)
+    {
+        return jdNameOf(getExtBTID(BTID, ETID));
     }
 	
     public static ParamList GetLocalSnInfo(String SNo) throws Exception {

@@ -4,35 +4,32 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.Toast;
-import hylib.toolkits.*;
+
+import hylib.toolkits.DelayTask;
+import hylib.toolkits.EventHandleListener;
+import hylib.toolkits._D;
 import hylib.ui.dialog.Msgbox;
 import hylib.util.ParamList;
 
 
 public class LoopMsg {
 	private Handler mHandler;
-	public String msg;
 	private int mr;
 	public boolean isLooping;
-	public final int TIMEOUT = -1;;
+	public int TIMEOUT = -1;
 
 	public LoopMsg() {
-	}
-	
-	public LoopMsg(String msg) {
-		this.msg = msg;
 	}
 	
 	public void StopLoop(int result) {
 		mr = result;
 		StopLoop();
-		_D.Out("StopLoop");
 	}
 	
 	public void StopLoop() {
 		if(mHandler == null) return;
 		mHandler.sendMessage(mHandler.obtainMessage());
+		_D.Out("StopLoop: " + mr);
 		mHandler = null;
 	}
 
@@ -79,28 +76,34 @@ public class LoopMsg {
 		mTimeoutBreakTask.Cancel();
 	}
 
+	public void CreateHandler(){
+        mHandler = new Handler(Looper.getMainLooper()) {
+            public void handleMessage(Message msg) {
+                CloseTimeoutBreakTask();
+                throw new LoopExitException();
+            }
+        };
+    }
+
 	private DelayTask mTimeoutBreakTask;
 	public void Loop(int timeout) {
 		if(timeout > 0) CreateTimeoutBreakTask(timeout);
-		
-		mHandler = new Handler(Looper.getMainLooper()) {
-			public void handleMessage(Message mesg) {
-				CloseTimeoutBreakTask(); 
-				throw new LoopExitException();
-			}
-		};
+
+        CreateHandler();
 		try {
-			//Looper.getMainLooper();
 			_D.Out("StartLoop");
 			mr = -1;
 			isLooping = true;
 			Looper.loop();
-			isLooping = false;
 		} catch (LoopExitException e) {
+			_D.Out("LoopOut");
+		} finally {
 			isLooping = false;
-		} catch (Exception e) {
-			_D.Out(e.getMessage());
 		}
+
+//		catch (Exception e) {
+//			_D.Out(e.getMessage());
+//		}
 	}
 
 	public void Loop() {

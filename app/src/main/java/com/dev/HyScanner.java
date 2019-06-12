@@ -1,9 +1,9 @@
 package com.dev;
 
-import hylib.sys.SysUtils;
+import android.os.Handler;
+
 import hylib.toolkits.ExProc;
 import hylib.toolkits.gcon;
-import android.os.Handler;
 
 public class HyScanner {
 	public static ZltdDecoder zltdDecoder;
@@ -31,6 +31,7 @@ public class HyScanner {
     
 	//---------------------------------------------------------------------
 	public static void Init() {
+		if(zltdDecoder != null) return;
 		if(Dev.isPL50()) {
 			PL50.Init();
 		} else {

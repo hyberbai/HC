@@ -1,14 +1,16 @@
 package hylib.data;
 
-import hylib.edit.DType;
-import hylib.toolkits.*;
+import android.annotation.SuppressLint;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import android.R.integer;
-import android.annotation.SuppressLint;
+import hylib.edit.DType;
+import hylib.toolkits.PY;
+import hylib.toolkits.gi;
+import hylib.toolkits.gs;
+import hylib.toolkits.gv;
 
 public class DataRowCollection extends ArrayList<DataRow>  {
 	private static final long serialVersionUID = 1L;
@@ -81,6 +83,12 @@ public class DataRowCollection extends ArrayList<DataRow>  {
 			if(gv.Same(dr.getValue(col), value)) return dr;
         return null;
     }
+
+	public DataRow FindRow(gi.IFunc1<DataRow, Boolean> funcFind) {
+		for (DataRow dr : this)
+			if(funcFind.Call(dr)) return dr;
+		return null;
+	}
     
     public DataRowCollection SelectRows(String columnName, Object value) {
     	DataRowCollection rs = new DataRowCollection(Table);

@@ -1,6 +1,33 @@
 package hylib.ui.dialog;
 
-import hylib.data.DataRow;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.text.InputType;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.hc.ID;
+import com.hc.R;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 import hylib.data.DataRowCollection;
 import hylib.data.DataTable;
 import hylib.sys.HyApp;
@@ -8,7 +35,6 @@ import hylib.sys.LoopMsg;
 import hylib.toolkits.DelayTask;
 import hylib.toolkits.EventHandleListener;
 import hylib.toolkits.ExProc;
-import hylib.toolkits.HyColor;
 import hylib.toolkits.TempV;
 import hylib.toolkits.gs;
 import hylib.toolkits.gu;
@@ -20,43 +46,6 @@ import hylib.util.ParamList;
 import hylib.widget.HyEvent.LvItemClickEventParams;
 import hylib.widget.HyListAdapter;
 import hylib.widget.HyListView;
-
-import java.lang.reflect.Field;
-import java.security.interfaces.RSAKey;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EventListener;
-import java.util.HashMap;
-import java.util.List;
-
-import com.hc.ID;
-import com.hc.R;
-import com.hc.dal.Bill;
-
-import android.R.raw;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.text.InputType;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class Msgbox {
 	// Msgbox Button
@@ -110,7 +99,7 @@ public class Msgbox {
 		     "";
 		
 		final EditText etInput = (Flag & MB_Input) != 0 ? new EditText(context) : null;
-		
+
 		final LoopMsg lm = new LoopMsg();
 
 		builder.setTitle(title).setMessage(msg).setIcon(iconId);
@@ -152,6 +141,13 @@ public class Msgbox {
 					dialog.dismiss();
 				}
 			});
+
+		builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			public void onDismiss(DialogInterface dialog) {
+				lm.StopLoop();
+			}
+		});
+
 		builder.show();
 		lm.Loop();
 
@@ -185,7 +181,7 @@ public class Msgbox {
 
 		final TempV ret = new TempV();
 		final TempV tdlg = new TempV();
-		
+
 		final EditText etInput = new EditText(context);
 
 		final LoopMsg lm = new LoopMsg();
@@ -195,7 +191,7 @@ public class Msgbox {
   			if(pl.containsKey("title")) builder.setTitle(pl.SValue("title"));
   			String input_type = pl.SValue("input_type");
   			etInput.setInputType(UIUtils.valueOfInputTypeName(input_type));
-  			etInput.setSelectAllOnFocus(true);    
+  			etInput.setSelectAllOnFocus(true);
   			
   			Object o = pl.get("value");
   			if(o != null) etInput.setText(o.toString());

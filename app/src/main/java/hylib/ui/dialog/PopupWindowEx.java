@@ -1,15 +1,12 @@
 package hylib.ui.dialog;
 
-import com.hc.R;
+import android.view.View;
+import android.widget.PopupWindow;
 
 import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
 import hylib.toolkits.ExProc;
 import hylib.util.ParamList;
-import android.R.integer;
-import android.content.Context;
-import android.view.View;
-import android.widget.PopupWindow;
 
 public class PopupWindowEx extends PopupWindow {
 	public DataRowCollection Items;
@@ -31,6 +28,14 @@ public class PopupWindowEx extends PopupWindow {
     public void setItemState(String name, int state) {
 		DataRow dr = Items.FindRow("name", name);
 		if(dr != null) dr.setValue("state", state);
+	}
+
+	public void setItemParams(String name, String params){
+		DataRow dr = Items.FindRow("name", name);
+		if(dr == null) return;
+		ParamList pl = new ParamList(dr.getStrVal("pl"));
+		pl.SetParams(params);
+		dr.setValue("pl", pl.toString());
 	}
     
     public void Popup(View v) {

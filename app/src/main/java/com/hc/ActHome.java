@@ -1,21 +1,5 @@
 package com.hc;
 
-import hylib.sys.HyApp;
-import hylib.toolkits.ExProc;
-import hylib.toolkits.gv;
-import hylib.toolkits.gs;
-import hylib.ui.dialog.UICreator;
-import hylib.util.Action;
-import hylib.util.ActionInfo;
-import hylib.util.ActionList;
-import hylib.util.ParamList;
-import hylib.view.ActivityEx;
-import hylib.widget.VGWrap;
-
-import com.hc.mo.bill.*;
-import com.hc.mo.pd.*;
-import com.hc.mo.sy.ActSy;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,23 +10,51 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.hc.mo.bill.ActBill;
+import com.hc.mo.bill.ActBillBH;
+import com.hc.mo.bill.ActBillSale;
+import com.hc.mo.bill.ActBillTH;
+import com.hc.mo.bill.ActHisListBill;
+import com.hc.mo.bill.ActHisListStockBill;
+import com.hc.mo.bill.ActStatsBill;
+import com.hc.mo.bill.ActTest;
+import com.hc.mo.pd.ActPD;
+import com.hc.mo.sy.ActSy;
+
+import hylib.sys.HyApp;
+import hylib.toolkits.ExProc;
+import hylib.toolkits.gs;
+import hylib.toolkits.gv;
+import hylib.ui.dialog.UICreator;
+import hylib.util.Action;
+import hylib.util.ActionInfo;
+import hylib.util.ActionList;
+import hylib.util.ParamList;
+import hylib.view.ActivityEx;
+import hylib.widget.VGWrap;
+
 
 public class ActHome extends ActivityEx {
 	private VGWrap vwItems;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState); 
-		setContentView(R.layout.activity_home);
-		
-		MyApp.actMain = this;
-		
-		vwItems = $(R.id.vw_items);
-		
-		FillList();
-		RefreshHeaderInfo();
-		
-		//CreateNaviBar();
+		super.onCreate(savedInstanceState);
+		try {
+			setContentView(R.layout.activity_home);
+
+			MyApp.actMain = this;
+			MyApp.CheckEmptyInit();
+
+			vwItems = $(R.id.vw_items);
+
+			FillList();
+			RefreshHeaderInfo();
+
+			//CreateNaviBar();
+		} catch (Exception e) {
+		    ExProc.Show(e);
+		}
 	}
 
 	public void CreateNaviBar() {

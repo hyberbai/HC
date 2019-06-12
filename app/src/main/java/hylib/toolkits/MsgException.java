@@ -18,7 +18,7 @@ public class MsgException extends RuntimeException {
     public String getMessage() {
     	String detailMessage = super.getMessage();
     	Throwable cause = getCause();
-    	if(cause != null) detailMessage += "\n错误信息：\n" + cause.getMessage();
+    	if(cause != null) detailMessage += "\n" + ExProc.GetErrMsg(cause);
         return detailMessage;
     }
 }

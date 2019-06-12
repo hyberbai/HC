@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import hylib.toolkits._D;
+import hylib.toolkits.ArrayTools;
+import hylib.toolkits.ExProc;
 import hylib.toolkits.gi;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
@@ -165,6 +166,16 @@ public final class DataTable {
 	public DataRow firstRow() {
 		return rows.size() > 0 ? rows.get(0) : null;
 	}
+
+//	public DataRow firstRow(String cond) {
+//
+//		return rows.FindRow(FindRow(new gi.IFunc1<DataRow, Boolean>() {
+//            public Boolean Call(DataRow dr){
+//                cond.split(".");
+//                return ;
+//            }
+//        });
+//	}
 	
 	public DataRow lastRow() {
 		return rows.size() > 0 ? rows.get(rows.size() - 1) : null;
@@ -433,8 +444,7 @@ public final class DataTable {
 		return result;
 	}
 
-	public DataTable Select(String tableName, String selectField, String filterString,
-			String groupField) {
+	public DataTable Select(String tableName, String selectField, String filterString, String groupField) {
 		DataTable result = new DataTable();
 		//
 		return result;
@@ -581,50 +591,127 @@ public final class DataTable {
 			ss[i++] = func.Call(dr);
 		return ss;
 	}
-	
-	public static DataTable Create(String Text) throws Exception {
-		SimpleLex lex = new TableLex(Text);
 
-		String[] temp = new String[256];
-		DataTable dt = new DataTable();
-		
-        int token = lex.GetToken();
-        boolean IsFirstLine = true;
-    	int index = 0;
-    	int ColCount = 0;
-        while (true)
-        {
-        	if(token == SimpleLex.LT_Indent || token == SimpleLex.LT_String)
-        	{
-        		if(index < temp.length) temp[index] = lex.Text;
-        		if(index == 8)
-        			_D.Dumb();
-        	}
-        	else if(token == SimpleLex.LT_ItemSplitChr) 
-        		index++;
-        	else if(token == SimpleLex.LT_LineSplitChr || token == SimpleLex.LT_End)
-        	{
-        		if(index > 0)
-        		{
-	        		if(IsFirstLine)
-	        		{
-	        			ColCount = index + 1;
-	        			for(int i = 0; i < ColCount; i++)
-	        				dt.addColumn(temp[i], 0);
-	        			IsFirstLine = false;
-	        		}
-	        		else {
-	        			dt.addRow((Object[]) temp);
-	        		}
-	    			temp = new String[ColCount];
-        		}
-        		index = 0;
-        	}
-        	if(token == SimpleLex.LT_End) break;
-            token = lex.GetToken();
-        }
+
+
+
+
+
+	/// <summary>
+	/// 解析文本并创建 DataTable
+	/// </summary>
+	public static DataTable CreateTable(String tableName, String Text)
+	{
+		TableLex lex = new TableLex(Text);
+		DataTable dt = ParseTableColumns(tableName, lex);
+		ParseTableRows(dt, lex);
 		return dt;
 	}
+
+	public static DataTable Create(String Text)
+	{
+		return CreateTable("", Text);
+	}
+
+	public static DataTable ParseTableColumns(String tableName, TableLex lex)
+	{
+		final DataTable dt = new DataTable();
+		dt.tableName = tableName;
+
+		ParseTableText(lex, new gi.Action2<Integer, String[]>() {
+			@Override
+			public void Execute(Integer index, String[] temp) {
+				for (int i = 0; i <= index; i++)
+				{
+					DataColumn dc = new DataColumn();
+					gs.CutResult cr = gs.Cut(temp[i], " ");
+
+					dc.setColumnName(cr.S1);
+					if (!cr.S2.isEmpty())
+					{
+						Class<?> type = gv.GetTypeByName(cr.S2);
+						if (type != null) dc.setDataType(type);
+					}
+					dt.columns.add(dc);
+				}
+			}
+		}, true);
+		return dt;
+	}
+
+	public static Object ConvertToDbValue(String value, Class<?> type)
+	{
+		if (!(type == String.class) && value == null) return null;
+		return gv.ConvertType(value, type);
+	}
+
+	public static void ParseTableRows(final DataTable dt, TableLex lex)
+	{
+		final int colCount = dt.columns.size();
+		final Class<?>[] colTypes = dt.columns.getColClasses();
+
+		ParseTableText(lex, new gi.Action2<Integer, String[]>() {
+			@Override
+			public void Execute(Integer index, String[] temp) {
+				DataRow dr = dt.addRow();
+				for (int i = 0; i < colCount; i++)
+					try
+					{
+						dr.ItemArray[i] = ConvertToDbValue(i > index ? "" : temp[i], colTypes[i]);
+					}
+					catch (Exception ex)
+					{
+						DataColumn dc = dr.getTable().columns.get(i);
+						int n = dr.getTable().rows.size() + 1;
+						String s = gs.JoinArray(ArrayTools.Copy(temp, 0, i + 1), "|");
+						ExProc.ThrowMsgEx("创建数据表 " + dt.getTableName() + " 失败! [行: " + n + "列: " + (i + 1) + "]\n" +
+										"无效列值 " + dc.getColumnName() + ": " + temp[i] + "[" + dc.getDataType() + "]\n" +
+										s
+								, ex);
+					}
+				ArrayTools.Init(temp, colCount, "");
+			}
+		}, false);
+	}
+
+	private static void ParseTableText(TableLex lex, gi.Action2<Integer, String[]> action, Boolean onlyOnce)
+	{
+		String[] temp = new String[1024];
+		ArrayTools.Init(temp, "");
+		int token = lex.GetToken();
+		int index = -1;
+		while (true)
+		{
+			if (gv.In(token, SimpleLex.LT_Indent, SimpleLex.LT_String, SimpleLex.LT_Unknown))
+			{
+				if (index < 0) index = 0;
+				if (temp[index].isEmpty())
+					temp[index] = lex.Text;
+				else
+					temp[index] += " " + lex.Text;
+			}
+			else if (token == SimpleLex.LT_ItemSplitChr)
+			{
+				if (index < 0) index = 0;
+				index++;
+			}
+			else if (token == SimpleLex.LT_LineSplitChr || token == SimpleLex.LT_End)
+			{
+				if (index >= 0)
+				{
+					action.Execute(index, temp);
+					if (onlyOnce) break;
+				}
+				index = -1;
+			}
+			if (token == SimpleLex.LT_End) break;
+			token = lex.GetToken();
+		}
+	}
+
+
+
+
 
 	public void ClearRows(){
 		rows.clear();
@@ -658,5 +745,14 @@ public final class DataTable {
 
 	public DataTable GroupBy(String sql) {
 		return GroupBy(SqlUtils.ParserSqlSelect(sql));
+	}
+
+	public void SetColsType(String config){
+		DataColumnCollection cfgCols = new DataColumnCollection(config);
+		for (DataColumn dcCfg : cfgCols) {
+			DataColumn dc = columns.get(dcCfg.getColumnName());
+			if(dc == null || dc.getDataType() == dcCfg.getDataType()) continue;;
+			dc.setDataType(dcCfg.getDataType());
+		}
 	}
 }

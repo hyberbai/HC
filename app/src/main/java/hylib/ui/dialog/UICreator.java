@@ -22,6 +22,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
@@ -41,9 +42,11 @@ import android.widget.TextView;
 import com.hc.ID;
 import com.hc.R;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
 import hylib.edit.DType;
 import hylib.edit.EditField;
@@ -56,6 +59,7 @@ import hylib.toolkits.UnitType;
 import hylib.toolkits.UnitValue;
 import hylib.toolkits._D;
 import hylib.toolkits.gc;
+import hylib.toolkits.gi;
 import hylib.toolkits.gs;
 import hylib.toolkits.gu;
 import hylib.toolkits.gv;
@@ -202,47 +206,82 @@ public class UICreator {
 		pw.setFocusable(true);// 加上这个popupwindow中的ListView才可以接收点击事件
 		pw.Items =  pl.Get("Items", DataRowCollection.class);
 		pw.Params = pl;
-		//lv.setLayoutParams(new ViewGroup.LayoutParams(300, LayoutParams.WRAP_CONTENT));
 
-		HyListAdapter apt = new HyListAdapter(context, pw.Items);
-		apt.getViewListener = new HyListAdapter.OnGetViewListener() {
+		ParamList plMenuItem = new ParamList("items: [" +
+				"[v: { id:Icon, w:24dp, h: 24dp, text: info, lay-grv:c, marginLeft:5dp }, tv: { id:Info, fs: 16dp, text: info,w:match,bgc1:r,color:black, padding: 10dp, paddingLeft: 5dp, h:wrap }], "+
+				"], grv: c, padding: 0dp, margin: 0dp, space: 0dp, w:160dp, h:wrap, bg1:#33CCAAFF");
+		ParamList plAdapter = new ParamList();
+		plAdapter.SetValue("itemViewConfig", plMenuItem);
+		final boolean icoVisible = pw.Items.FindRow(new gi.IFunc1<DataRow, Boolean>() {
+			public Boolean Call(DataRow dr){
+				ParamList pl = new ParamList(dr.getStrVal("pl"));
+				return pl.containsKey("checked") || pl.containsKey("icon");
+			}
+		}) != null;
+		plAdapter.SetValue("setViewData", new EventHandleListener() {
 
 			@Override
-			public View onGet(int position, View convertView, ViewGroup parent) {
-				String value = pw.Items.get(position).getStrVal("text");
-				if (convertView == null) {
-					//convertView = LayoutInflater.from(context).inflate(R.layout.list_sale_item, null);
-					
-					LinearLayout ll = new LinearLayout(context);
-			        int padding = gu.dp2px(context, 10);
-//					LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,  LayoutParams.MATCH_PARENT);
-//					lp.gravity = Gravity.CENTER_VERTICAL;
-//				    ll.setLayoutParams(lp);
-				    //ll.setBackgroundColor(0xFFCCCCFF);
-			        ll.setOrientation(LinearLayout.HORIZONTAL);
-			        ll.setPadding(padding, padding, padding, padding);
-			        
-					TextView tv = new TextView(context);
-					int w = gu.getPx(context, pl.SValue("width"));
-					tv.setWidth(w == 0 ? LayoutParams.WRAP_CONTENT : w);
-					
-					tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-					tv.setSingleLine();
-					tv.setTextColor(Color.BLACK);
-					tv.setGravity(Gravity.CENTER_VERTICAL);
-					tv.setId(100);
-					
-					ll.addView(tv);
-					convertView = ll;
-				}
-//				View v =convertView.findViewById(R.id.item_info);
-//				UIUtils.setViewValue(v, value);
-				View v = convertView.findViewById(100);
-				UIUtils.setViewValue(v, value);
-				v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-				return convertView;
+			public void Handle(Object sender, ParamList arg) throws Exception {
+				View convertView = arg.Get("view", View.class);
+
+				TextView tvInfo = type.as(convertView.findViewById(ID.Info), TextView.class);
+				View icon = type.as(convertView.findViewById(ID.Icon), View.class);
+
+				DataRow dr = arg.Get("item", DataRow.class);
+				ParamList pl = new ParamList(dr.getStrVal("pl"));
+
+				UICreator.SetViewParam(convertView, "paddingLeft:" + (icoVisible ? 2 : 5) + "dp");
+
+				tvInfo.setText(dr.getStrVal("text"));
+				icon.setVisibility(icoVisible ? View.VISIBLE : View.GONE);
+				if(pl.containsKey("icon"))
+					icon.setBackground(HyApp.getDrawable(pl.SValue("icon")));
+				if (pl.containsKey("checked"))
+					icon.setBackgroundResource(pl.BValue("checked") ? R.drawable.check1 : R.drawable.check0);
+				if(pl.containsKey("hide")) convertView.setVisibility(View.GONE);
+				if(pl.containsKey("disable")) convertView.setEnabled(false);
 			}
-		};
+		});
+		HyListAdapter apt = HyListAdapter.Create(context, lv, pw.Items, plAdapter);// new HyListAdapter(context, pw.Items);
+
+//		apt.getViewListener = new HyListAdapter.OnGetViewListener() {
+//
+//			@Override
+//			public View onGet(int position, View convertView, ViewGroup parent) {
+//				String value = pw.Items.get(position).getStrVal("text");
+//				if (convertView == null) {
+//					//convertView = LayoutInflater.from(context).inflate(R.layout.list_sale_item, null);
+//
+//					LinearLayout ll = new LinearLayout(context);
+//			        int padding = gu.dp2px(context, 10);
+////					LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,  LayoutParams.MATCH_PARENT);
+////					lp.gravity = Gravity.CENTER_VERTICAL;
+////				    ll.setLayoutParams(lp);
+//				    //ll.setBackgroundColor(0xFFCCCCFF);
+//			        ll.setOrientation(LinearLayout.HORIZONTAL);
+//			        ll.setPadding(padding, padding, padding, padding);
+//
+//					TextView tv = new TextView(context);
+//					int w = gu.getPx(context, pl.SValue("width"));
+//					tv.setWidth(w == 0 ? LayoutParams.WRAP_CONTENT : w);
+//
+//					tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+//					tv.setSingleLine();
+//					tv.setTextColor(Color.BLACK);
+//					tv.setGravity(Gravity.CENTER_VERTICAL);
+//					tv.setId(100);
+//
+//					ll.addView(tv);
+//					convertView = ll;
+//				}
+////				View v =convertView.findViewById(R.id.item_info);
+////				UIUtils.setViewValue(v, value);
+//				View v = convertView.findViewById(100);
+//				UIUtils.setViewValue(v, value);
+//				v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//				return convertView;
+//			}
+//		};
 		lv.setAdapter(apt);
 		lv.setOnItemClickListener(new OnItemClickListener() {
 
@@ -532,40 +571,67 @@ public class UICreator {
 	public interface SetLTRBCallBack {
 	    public void set(int left, int top, int right, int bottom);
 	}
-	
-	public LayoutParams newLayoutParams(){
-    	return new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+
+	public static Object newInstance(Class c, Class[] parameterTypes, Object[] parameters){
+		try {
+			Constructor constructor = c.getConstructor(parameterTypes);
+			return constructor.newInstance(parameters);
+		} catch (Exception e) {
+			ExProc.Show(e);
+			return null;
+		}
 	}
 	
+	public LayoutParams newLayoutParams(Class layoutParamsClass) {
+		return (LayoutParams)newInstance(
+				layoutParamsClass,
+				new Class[] { int.class, int.class },
+				new Object[] { LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT }
+		);
+    	//return new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+	}
+
+	public LayoutParams newLayoutParams(ParamList pl) {
+		String type = pl == null ? "" : pl.SValue("lp-type");
+		Class layoutParamsClass = type == "listview" ? AbsListView.LayoutParams.class :
+							LinearLayout.LayoutParams.class;
+		return newLayoutParams(layoutParamsClass);
+	}
+
 	public static int getParentOrientation(View v) {
 		LinearLayout ll = type.as(v.getParent(), LinearLayout.class);
 		return ll == null ? -1 : ll.getOrientation();
 	}
 	
-	public LayoutParams UpdateLayoutParams(View v, int ori, UnitValue uw, UnitValue uh){
+	public LayoutParams UpdateLayoutParams(View v, int ori, UnitValue uw, UnitValue uh, ParamList pl){
 		LayoutParams lp = v.getLayoutParams();
 		if(uw == null && uh == null) return lp;
-		if(lp == null) lp = newLayoutParams();
-		
-		if(uw != null) { 
+		if(lp == null) lp = newLayoutParams(pl);
+		AbsListView.LayoutParams p;
+
+		if(uw != null) {
 			if(uw.Type == UnitType.fit)
 				_D.Dumb();
 			if(uw.Type == UnitType.weight) {
 				lp.width = 0;
-				((LinearLayout.LayoutParams)lp).weight = uw.IntVal(); 
+				if(lp instanceof LinearLayout.LayoutParams)
+					((LinearLayout.LayoutParams)lp).weight = uw.IntVal();
 			} else {
 				lp.width = uw.IntVal();
-				if(ori == LinearLayout.HORIZONTAL) ((LinearLayout.LayoutParams)lp).weight = 0;
+				if(ori == LinearLayout.HORIZONTAL && lp instanceof LinearLayout.LayoutParams)
+					((LinearLayout.LayoutParams)lp).weight = 0;
 			}
 		}
 
 		if(uh != null){ 
 			if(uh.Type == UnitType.weight) {
 				lp.height = 0;
-				((LinearLayout.LayoutParams)lp).weight = uh.IntVal(); 
+				if(lp instanceof LinearLayout.LayoutParams)
+					((LinearLayout.LayoutParams)lp).weight = uh.IntVal();
 			} else {
 				lp.height = uh.IntVal();
-				if(ori == LinearLayout.VERTICAL) ((LinearLayout.LayoutParams)lp).weight = 0;
+				if(ori == LinearLayout.VERTICAL && lp instanceof LinearLayout.LayoutParams)
+					((LinearLayout.LayoutParams)lp).weight = 0;
 			}
 		} 
 
@@ -591,17 +657,17 @@ public class UICreator {
         		  V_NULL;
 		
         // 设置宽高
-    	LayoutParams lp = UpdateLayoutParams(v, ori == V_NULL ? LinearLayout.HORIZONTAL : ori, uw, uh);
+    	LayoutParams lp = UpdateLayoutParams(v, ori == V_NULL ? LinearLayout.HORIZONTAL : ori, uw, uh, pl);
         LTRB ltrb = getParamLTRB("margin", pl);
 		
         // 设置边距
         if(ltrb != null) {
-        	if(lp == null) lp = newLayoutParams();
+        	if(lp == null) lp = newLayoutParams(pl);
         	setMargin(lp, ltrb);
         }
         int gravity = HyKeyValues.getGravity(pl.SValue("lay-grv"));
         if(gravity != 0){
-        	if(lp == null) lp = newLayoutParams();
+        	if(lp == null) lp = newLayoutParams(pl);
         	if(lp instanceof LinearLayout.LayoutParams)
         	{
         		if(ll != null)
@@ -866,7 +932,7 @@ public class UICreator {
 
 	public void setViewMargin(View v, LTRB ltrb){
 		LayoutParams lp = v.getLayoutParams();
-    	if(lp == null) lp = newLayoutParams();
+    	if(lp == null) lp = newLayoutParams((ParamList) null);
     	setMargin(lp, ltrb);
     	v.setLayoutParams(lp);
 	}
@@ -1167,6 +1233,8 @@ public class UICreator {
         llPanel.setPadding(padding, padding, padding, padding);
         mEFields = plPanel.Get("EFields", EditFieldList.class);
 
+		String space = plPanel.getValue("space", "10dp");
+
         LoadStyles(plPanel);
 
         if(!containParam(plPanel, "hor")) plPanel.SetValue("ver");
@@ -1185,7 +1253,7 @@ public class UICreator {
                 	Param pm = (Param)itemHor;
                 	ParamList plView = type.as(pm.Value, ParamList.class);
                 	if(anti_orient == LinearLayout.HORIZONTAL && itemHor != horItems[horItems.length - 1]) 
-                		plView.SetParams("marginRight: 10dp");
+                		plView.SetParams("marginRight: " + space);
                 	llHor.addView(CreateFieldView(pm.Name, plView, plPanel, anti_orient));
                 }
             	llPanel.addView(llHor);

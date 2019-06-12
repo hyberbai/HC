@@ -1,46 +1,27 @@
 package com.hc.dal;
 
-import java.io.*;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.security.PublicKey;
-import java.sql.Connection;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.hc.MyApp;
 import com.hc.SysData;
+import com.hc.db.DBLocal;
 import com.hc.g;
 import com.hc.pu;
-import com.hc.db.DBLocal;
 
-import android.R.bool;
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.Environment;
-import android.util.Log;
-import hylib.data.DataColumn;
+import java.sql.Connection;
+import java.util.HashMap;
+
 import hylib.data.DataRow;
 import hylib.data.DataTable;
 import hylib.edit.DType;
 import hylib.io.FileUtil;
-import hylib.sys.LoopMsg;
-import hylib.toolkits.*;
-import hylib.ui.*;
-import hylib.ui.dialog.LoadingDialog;
-import hylib.ui.dialog.Msgbox;
-import hylib.util.*;
+import hylib.toolkits.ExProc;
+import hylib.toolkits.Security;
+import hylib.toolkits.gi;
+import hylib.toolkits.gv;
+import hylib.toolkits.type;
+import hylib.util.HttpSoap;
+import hylib.util.Param;
+import hylib.util.ParamList;
+import hylib.util.ZipBase64;
 
 // web服务调用类
 public class WS {
@@ -54,10 +35,13 @@ public class WS {
 	public static void Init() {
 		try {
 			String addr = g.GetSysParam("server_addr");
-        	if(g.GetSysParam("server_addr").equals(""))
-        		HttpSoap.SetServerAddr(pu.DEFAULT_SERVER_ADDR);
-        	else
+        	if(gv.IsEmpty(addr)) {
+				addr = pu.DEFAULT_SERVER_ADDR;
+				HttpSoap.SetServerAddr(addr);
+				g.SetSysParam("server_addr", addr);
+			} else
         		HttpSoap.SetServerAddr(g.GetSysParam("server_addr"));
+			//pu.dtServerAddrs.lastRow().setValue("addr", addr);
 //    		WS.ConnectServer(); 
 		} catch (Exception e) {
 			ExProc.Show(e);
@@ -158,32 +142,7 @@ public class WS {
 		if(!pwd.equals("t1809") && !PD.equals(Security.getMD5(pwd)))
 			ExProc.ThrowMsgEx("密码错误，请重新输入！");
 		
-		
-		SysData.op_id = dr.getIntVal("FUserID"); 
-		SysData.op_name = dr.getStrVal("FName");
-		SysData.emp_id = d.getEmpID(SysData.op_id);
-		SysData.ug_name= dr.getStrVal("FGroup"); 
-		SysData.oa_account =  dr.getStrVal("OA"); 
-		SysData.RT = dr.getStrVal("RT"); 
-		SysData.gRT = dr.getStrVal("gRT"); 
-		if(SysData.RT.isEmpty()) SysData.RT = SysData.gRT; 
-		
-		if(SysData.ug_name.indexOf("销售") >= 0) 
-			SysData.ug_id = SysData.UG_YWY;
-		else if(SysData.ug_name.indexOf("外部") >= 0) 
-			SysData.ug_id = SysData.UG_OUT;
-		else if(SysData.ug_name.indexOf("管理") >= 0)
-			SysData.ug_id = SysData.UG_ADMIN;
-		else
-			SysData.ug_id = 0;
-
-		SysData.tryTestPwdLoad(pwd);
-		
-		try {
-			SysData.LoadRTs();
-		} catch (Exception e) {
-			ExProc.Show(e);
-		}
+		SysData.LoadData(dr, pwd);
 	}
 	
 	public static boolean IsConnected() {
@@ -299,7 +258,7 @@ public class WS {
 	public static ParamList SynData(String[] SysItems, ParamList pl) throws Exception{
 		return (ParamList)ExecWebService("SynData", new Param[] { 
 				new Param("SynItems", SysItems),
-				new Param("pms", pl.toString()),
+				new Param("pms", pl == null ? "" : pl.toString()),
 			});
 	}
 
@@ -308,6 +267,20 @@ public class WS {
 		return (Boolean)ExecWebService("RecvData", new Param[] { 
 				new Param("Params", pl),
 			});
+	}
+
+	// 获取金蝶单据列表
+	public static DataTable GetJdBillList(String cond) throws Exception {
+		return (DataTable)ExecWebService("GetJdBillList", new Param[] {
+				new Param( "cond", cond),
+		});
+	}
+
+	// 获取金蝶单据信息
+	public static ParamList GetJdBillInfo(int FID) throws Exception {
+		return (ParamList)ExecWebService("GetJdBillInfo", new Param[] {
+				new Param( "FID", FID),
+		});
 	}
 
 	// 获取打印模板
@@ -321,26 +294,6 @@ public class WS {
 	// 提交单据
 	public static int UploadBill(ParamList pl) throws Exception {
 		return (Integer)ExecWebService("RecvTempBillV2", pl);
-	}
-	
-	// 从云端获取报表
-	// 参数: RID: 模板ID, RTID: 模板类型, DS: 数据源
-	public static ParamList GetCloudReport(int DID, String RIDs, String fileNames) throws Exception{
-		
-		ParamList plRet = (ParamList)ExecWebService("GetCloudReport", new Param[] { 
-				new Param("DID", DID),
-				new Param("RIDs", RIDs),
-				new Param("fileNames", fileNames),
-			});
-
-		Object[] fileDatas = (Object[])plRet.get("Files");
-		for (Object data : fileDatas) {
-			Param pdfData = (Param)data;
-			byte[] bytes = ZipBase64.Decode((String)pdfData.Value);
-			String fileName = pu.TEMP_PATH + pdfData.Name + ".pdf";
-			FileUtil.SaveToFile(fileName, bytes);
-		}
-		return plRet;
 	}
 	
 	// 从云端获取报表

@@ -1,12 +1,9 @@
 package hylib.toolkits;
 
-import com.hc.MyApp;
+import android.content.Context;
 
 import hylib.sys.HyApp;
 import hylib.ui.dialog.Msgbox;
-import android.R.bool;
-import android.content.Context;
-import android.database.sqlite.SQLiteConstraintException;
 
 // 异常处理类
 public class ExProc {
@@ -55,7 +52,7 @@ public class ExProc {
 		@Override
 		public String toString() {
 			if(level == Level.Normal) return msg;
-	    	return msg +  "\n错误信息: " + MoreInfo;		
+	    	return msg +  "\n" + MoreInfo;
 		}
 	}
 
@@ -105,11 +102,11 @@ public class ExProc {
     	Show(HyApp.CurrentActivity(), hint, e);
     }
     
-    public static void Show(Exception e) {
+    public static void Show(Throwable e) {
     	Show(HyApp.CurrentActivity(), "", e);
     }
     
-    public static void ShowMsgbox(Context context, Exception e) {
+    public static void ShowMsgbox(Context context, Throwable e) {
     	Msgbox.Hint(context, GetErrMsg(e, ""));
     }
 }

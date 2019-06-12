@@ -1,14 +1,12 @@
 package hylib.data;
 
-import hylib.edit.DType;
-import hylib.toolkits.gs;
-import hylib.toolkits.gv;
+import android.annotation.SuppressLint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.R.integer;
-import android.annotation.SuppressLint;
+import hylib.edit.DType;
+import hylib.toolkits.gv;
 
 public class DataColumnCollection extends ArrayList<DataColumn> {
 	private static final long serialVersionUID = 1L;
@@ -51,7 +49,15 @@ public class DataColumnCollection extends ArrayList<DataColumn> {
             if(isAutoInc) dc.setAutoInc(true);
         }
     }
-    
+
+    public Class<?>[] getColClasses(){
+		Class<?>[] result = new Class<?>[size()];
+		int i = 0;
+		for (DataColumn dc : this)
+			result[i++] = DType.getClass(dc.getDataType());
+		return result;
+	}
+
 	public boolean containsCol(String columnName) {
 		return get(columnName) != null;
 	}

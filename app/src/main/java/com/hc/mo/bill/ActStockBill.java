@@ -1,19 +1,22 @@
 package com.hc.mo.bill;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.dev.HyScanner;
 import com.hc.ActBase;
 import com.hc.ID;
-import com.hc.MyApp;
+import com.hc.MyApp.WorkState;
 import com.hc.R;
 import com.hc.SysData;
-import com.hc.g;
-import com.hc.pu;
-import com.hc.MyApp.WorkState;
-import com.hc.R.id;
 import com.hc.dal.Bill;
 import com.hc.dal.SCID;
 import com.hc.dal.Setting;
@@ -22,33 +25,22 @@ import com.hc.dal.d;
 import com.hc.db.DBHelper;
 import com.hc.db.DBLocal;
 import com.hc.mo.sy.ActSy;
-import com.hc.tools.ActInputProduct;
-import com.hc.tools.ActSearchItem;
-import com.hc.tools.Search;
 
-import hylib.data.DataColumn;
+import java.util.Iterator;
+import java.util.Map;
+
 import hylib.data.DataColumnCollection;
 import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
-import hylib.data.DataRowState;
 import hylib.data.DataSort;
 import hylib.data.DataTable;
-import hylib.db.SqlDataAdapter;
-import hylib.edit.EditField;
-import hylib.edit.EditFieldList;
-import hylib.io.FileUtil;
-import hylib.toolkits.DelayTask;
 import hylib.toolkits.EventHandleListener;
 import hylib.toolkits.ExProc;
 import hylib.toolkits.SpannableStringHelper;
-import hylib.toolkits.Speech;
-import hylib.toolkits.gc;
 import hylib.toolkits.gi;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.toolkits.type;
-import hylib.toolkits.gi.CallBack;
-import hylib.ui.dialog.HyDialog;
 import hylib.ui.dialog.Msgbox;
 import hylib.ui.dialog.PopupWindowEx;
 import hylib.ui.dialog.UCCreator;
@@ -56,52 +48,28 @@ import hylib.ui.dialog.UICreator;
 import hylib.ui.dialog.UIUtils;
 import hylib.util.Param;
 import hylib.util.ParamList;
+import hylib.widget.HyEvent.LvItemClickEventParams;
 import hylib.widget.HyListAdapter;
 import hylib.widget.HyListView;
-import hylib.widget.HyEvent.LvItemClickEventParams;
-import android.R.bool;
-import android.R.integer;
-import android.R.plurals;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Base64;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
 /**
  * 金蝶单据 
  */
 public class ActStockBill extends ActBase {
-	protected int LayID; 
-	protected boolean hasChanged; 
 	protected int mFID;	// 单据ID
 	protected int BTID; // 单据类型ID
 	protected int ETID; // 单据扩展类型ID
 	protected String pageNames;
 
-	protected DataTable dtRpt;
+	protected String mBillNo;
 	protected DataTable dtStat;
-	protected String HintName;
 	protected ViewPager mViewPager;
 
 	protected ViewGroup mHeaderView;
 	protected ViewGroup mDetailView;
 	protected ViewGroup mStatView;
 	
-	protected DelayTask mDelaySave;
-	protected WorkState mWorkState; 
+	protected WorkState mWorkState;
 	
 	protected DataRow drBill;
 	protected DataRow drEntry;
@@ -119,6 +87,8 @@ public class ActStockBill extends ActBase {
 	
 	protected HyListAdapter listDetailAdapter;
 	protected HyListAdapter listStatAdapter;
+
+	public boolean IsRealTime;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +112,7 @@ public class ActStockBill extends ActBase {
 
     protected void loadInitParams() {
 		BTID = Params.IntValue("CID");
+		IsRealTime = Params.BValue("IsRealTime");
 		if(BTID / 10 == Bill.BTID_DB) {
 			ETID = BTID % 10;
 			BTID = BTID / 10;
@@ -220,6 +191,16 @@ public class ActStockBill extends ActBase {
 		mViewPager.setCurrentItem(Setting.GetUserSetting(SCID.LastPage_StockBill, 1));
 	}
 
+	@Override
+	protected void setOptionsMenuParams(ParamList pl) throws Exception {
+		final DataRowCollection rows = new DataRowCollection("name|text|pl", new Object[][] {
+				new Object[] { "Refresh", "刷新", null },
+		});
+
+		pl.set("Items", rows);
+		pl.set("width", "120dp");
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends View> T $$(int resId) {
 		return (T) mHeaderView.findViewById(resId);
@@ -278,11 +259,17 @@ public class ActStockBill extends ActBase {
     
     protected ParamList GetHeaderConfig() throws Exception {
         String config = "items: [" + 
-        		"et: { id:" + ID.BillNo + ", text: '单据编号', disabled }, " + 
-        		"et: { id:" + ID.Cust + ", text: '客户', disabled }, " + 
-        		"et: { id:" + ID.SCStock + ", text: '调出库', disabled }, " + 
-        		"et: { id:" + ID.DCStock + ", text: '调入库', disabled }, " + 
-        		"et: { id:" + ID.FNote + ", text: '备　注', disabled }, " + 
+        		"et: { id:" + ID.BillNo + ", title: '单据编号', disabled }, " +
+        		"et: { id:" + ID.Cust + ", title: '客　户', disabled }, " +
+				( BTID == Bill.BTID_WTDX ?
+					"et: { id:" + ID.SCStock + ", title: '库　位', disabled }, "
+				: BTID < 20 ?
+					"et: { id:" + ID.SCStock + ", title: '调出库', disabled }, " +
+					"et: { id:" + ID.DCStock + ", title: '调入库', disabled }, "
+				:
+					""
+				) +
+        		"et: { id:" + ID.FNote + ", title: '备　注', disabled }, " +
         "]";
 
         return new ParamList(config);
@@ -428,7 +415,7 @@ public class ActStockBill extends ActBase {
 		final String[] group = gs.Split("Cls");
 		dt.Sort("Cls,IID");
 		String groupKey = group[0];
-		int amount = 0;
+		float amount = 0;
 		int qty = 0;
 		
 		float totAmount = 0.0f;
@@ -540,22 +527,40 @@ public class ActStockBill extends ActBase {
 	}
 
 	protected void UpdateTitle() {
-		String title = Bill.nameOf(BTID, ETID) + "单";
+		String title = Bill.jdNameOf(BTID, ETID) + "单" + (gv.IsEmpty(mBillNo) ? "" : " - " + mBillNo);
 		tvTitle.setText(title);
 	}
-	
-	public void LoadData() throws Exception {
+
+	private String GetCond(){
 		String cond = SysData.isAdmin ? "" : " and FEmpID=" + SysData.emp_id;
 		if(!SysData.isAdmin) {
 			if(SysData.CustID > 0) {
 				cond += " and FCustID=" + SysData.CustID;
 			}
 		}
-		
+		return cond;
+	}
+
+	public  void LoadLocalBill() throws Exception {
 		dtBill = DBLocal.OpenSingleTable("StockBill",
-			"select * from StockBill where FBillTypeID=" + BTID +
-			(ETID > 0 ? " and ExtType='" + Bill.nameOfExtTypeID(ETID) + "'" : "") + cond);
+				"select * from StockBill where FBillTypeID=" + BTID +
+						(ETID == 1 ? " and ExtType='" + Bill.nameOfExtTypeID(ETID) + "'" : "") + GetCond());
 		LoadBill(mFID);
+	}
+
+	private String cfgEntryCols = DBHelper.Cfg_StockBillEntry + "|" + DBHelper.Cfg_Item;
+	public  void LoadServerBill() throws Exception {
+		ParamList plData = WS.GetJdBillInfo(mFID);
+		if(plData == null) return;
+		dtBill = (DataTable)plData.GetDeserializeValue("StockBill");
+		dtEntry = (DataTable)plData.GetDeserializeValue("StockBillEntry");
+		dtBill.SetColsType(DBHelper.Cfg_StockBill);
+		dtEntry.SetColsType(cfgEntryCols);
+		LoadBill(mFID);
+	}
+
+	public void LoadData() throws Exception {
+		if(IsRealTime) LoadServerBill(); else LoadLocalBill();
 		UpdateDetailAdapter();
 	}
 	
@@ -564,11 +569,13 @@ public class ActStockBill extends ActBase {
 	}
 	
 	private void OpenDetailTable(int FID) throws Exception {
-		String sql = "select * from StockBillEntry d\n" + 
-					 "left join SN on d.SNo=SN.FSerialNo\n" +
-					 "left join Item ic on SN.FItemID=ic.FItemID\n" +
-    				 "where d.FID=?\n";
-		dtEntry = DBLocal.OpenTable(DBHelper.Cfg_StockBillEntry + "|" + DBHelper.Cfg_Item, sql, FID);
+		if(!IsRealTime) {
+			String sql = "select * from StockBillEntry d\n" +
+					"left join SN on d.SNo=SN.FSerialNo\n" +
+					"left join Item ic on SN.FItemID=ic.FItemID\n" +
+					"where d.FID=?\n";
+			dtEntry = DBLocal.OpenTable(cfgEntryCols, sql, FID);
+		}
 		dtEntry.setTableName("StockBillEntry");
 
 		DataRow dr = dtEntry.firstRow();
@@ -611,13 +618,15 @@ public class ActStockBill extends ActBase {
 		drBill = dtBill.FindRow("FID", FID);
 
 		mFID = drBill == null ? 0 :  drBill.getIntVal("FID");
-		ParamList plEx = new ParamList(drBill == null ? "" : drBill.getStrVal("Ext"));
+		mBillNo = drBill == null ? "" :  drBill.getStrVal("FBillNo");
 //		SetCust(plEx.IntValue("CustID"));
 		if(drBill != null) {
-			$$Set(ID.BillNo, drBill.getValue("FBillNo"));
+			$$Set(ID.BillNo, mBillNo);
 			$$Set(ID.Cust, d.GetCustName(drBill.getIntVal("FCustID")));
-			$$Set(ID.FNote, plEx.get("FNote"));
+			$$Set(ID.FNote, drBill.getStrVal("FExplanation"));
 		}
+
+		ParamList plEx = new ParamList(drBill == null ? "" : drBill.getStrVal("Ext"));
 		LoadExtHeader(plEx);
 		
 		OpenDetailTable(mFID);
@@ -627,7 +636,7 @@ public class ActStockBill extends ActBase {
 		LockChange = false;
 		setWorkState(drBill == null || drBill.getIntVal("state")== 0 ? WorkState.Normal : WorkState.Done);
 		UpdateStat();
-
+		UpdateTitle();
 		//lvPD.setSelected(true);
 	}
 
@@ -638,6 +647,16 @@ public class ActStockBill extends ActBase {
 			setWorkState(WorkState.Normal);
 		} catch (Exception e) {
 			ExProc.Show(e);
+		}
+	}
+
+	public boolean ActRefresh() {
+		try {
+			LoadData();
+			return true;
+		} catch (Exception e) {
+			ExProc.Show(e);
+			return false;
 		}
 	}
 	

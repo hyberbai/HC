@@ -1,17 +1,16 @@
 package hylib.ui.dialog;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
 import com.hc.R;
 
 import hylib.sys.HyApp;
 import hylib.sys.LoopMsg;
 import hylib.toolkits.gv;
-import android.R.bool;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 public class LoadingDialog extends AlertDialog {
     private TextView tvMsg;
@@ -111,8 +110,11 @@ public class LoadingDialog extends AlertDialog {
 
 	public static void ImmeClose() {
 		if (dialog != null && dialog.isShowing()) {
-			dialog.hide();
-			dialog.dismiss();
+            try {
+                dialog.hide();
+                dialog.dismiss();
+            } catch (Exception e) {
+            }
 		}
 		loading_lock_count = 0;
 	}

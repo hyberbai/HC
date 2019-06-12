@@ -1,25 +1,7 @@
 package com.hc;
 
 
-import hylib.data.DataRowCollection;
-import hylib.toolkits.EventHandleListener;
-import hylib.toolkits.ExProc;
-import hylib.toolkits._D;
-import hylib.toolkits.gcon;
-import hylib.toolkits.type;
-import hylib.ui.dialog.Msgbox;
-import hylib.ui.dialog.PopupWindowEx;
-import hylib.ui.dialog.UICreator;
-import hylib.util.ParamList;
-import hylib.view.ActivityEx;
-
-import java.lang.ref.WeakReference;
-
-import android.R.bool;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,15 +9,22 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.PopupWindow;
 
 import com.dev.HyScanner;
-import com.dev.HyScanner;
-import com.dev.PL50Prt;
-import com.hc.scanner.Utils;
-import com.zltd.decoder.Constants;
-import com.zltd.decoder.DecoderManager;
 import com.zxing.ActCapture;
+
+import java.lang.ref.WeakReference;
+
+import hylib.data.DataRowCollection;
+import hylib.toolkits.EventHandleListener;
+import hylib.toolkits.ExProc;
+import hylib.toolkits.gcon;
+import hylib.toolkits.type;
+import hylib.ui.dialog.Msgbox;
+import hylib.ui.dialog.PopupWindowEx;
+import hylib.ui.dialog.UICreator;
+import hylib.util.ParamList;
+import hylib.view.ActivityEx;
 
 public class ActBase extends ActivityEx {
 	public PopupWindowEx pwOptions;
@@ -87,6 +76,7 @@ public class ActBase extends ActivityEx {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+		MyApp.CheckEmptyInit();
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
@@ -175,7 +165,6 @@ public class ActBase extends ActivityEx {
 			pl.set("input_type", "num");
 			pl.set("loop", false);
 			pl.set("input", new EventHandleListener() {
-				
 				@Override
 				public void Handle(Object sender, ParamList arg) throws Exception {
 					HandleSNo(pu.getSNo(arg.SValue("value")));
@@ -214,7 +203,6 @@ public class ActBase extends ActivityEx {
 			ParamList pl = new ParamList();
 			setOptionsMenuParams(pl);
 			pl.set("BeforePopup", new EventHandleListener() {
-				
 				@Override
 				public void Handle(Object sender, ParamList arg) throws Exception {
 					beforeShowOptionsMenu(type.as(sender, PopupWindowEx.class));
@@ -233,7 +221,7 @@ public class ActBase extends ActivityEx {
 	public void beforeShowOptionsMenu(PopupWindowEx pw){
 		pw.setItemText("FlashLight", (HyScanner.isLightEnabled() ? "关闭" : "开启") + "照明");
 		pw.setItemText("OpenDecoder", (HyScanner.isOpen() ? "关闭" : "开启") + "读头");
-	};
+	}
 
 	public void AppendDefaultMenu(DataRowCollection rows){
 		if(HyScanner.DeviceExists())
@@ -245,7 +233,7 @@ public class ActBase extends ActivityEx {
 			rows.SetRowValues(new Object[][] {
 					new Object[] { "ScanQR", "扫二维码", null },
 				});
-	};
+	}
 
 	public void onOptionsClick(View v) {
 		if(pwOptions == null) return;

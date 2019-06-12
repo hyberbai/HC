@@ -87,8 +87,13 @@ public class ActSettings extends ActBasePreference {
 
 	@Override
 	public void onResume() {
+		String addr = HttpSoap.GetServerAddr();
 		if(gv.IsEmpty(preServerAddr.getValue()))
-			preServerAddr.setValue(HttpSoap.GetServerAddr());
+			preServerAddr.setValue(addr);
+
+		DataRow dr = pu.dtServerAddrs.FindRow("addr", addr);
+		if(dr == null || preServerAddr.getSummary().toString().isEmpty())
+			preServerAddr.setSummary(addr);
 
 		preSetCust.setSummary(SysData.CustName);
 		preSetStock.setSummary(SysData.StockName);
@@ -106,7 +111,6 @@ public class ActSettings extends ActBasePreference {
 			ParamList pl = new ParamList();
 			pl.SetValue("value", preference.getSummary());
 			pl.SetValue("onChanged", new EventHandleListener() {
-				
 				@Override
 				public void Handle(Object sender, ParamList arg) throws Exception {
 					if(t.isOK()) return;
@@ -194,10 +198,10 @@ public class ActSettings extends ActBasePreference {
 	@Override
 	public Object onListChange(ListPreference preference, int index) {
 		setResult(RESULT_OK, null);
-		if(preference == preServerAddr)
-		{
-			Object v = SetServerAddr(index);
-			if(v == null) return false;
+		if(preference == preServerAddr) {
+			Object result = SetServerAddr(index);
+			if(index == preServerAddr.getEntries().length - 1)
+				return result;
 		}
 		return super.onListChange(preference, index);
 	}
@@ -218,7 +222,7 @@ public class ActSettings extends ActBasePreference {
 						{
 							setResult(RESULT_OK, null);
 							g.SetSysParam("server_addr", val);
-							pu.dtServerAddrs.setValue(3, "addr", val);
+							pu.dtServerAddrs.lastRow().setValue("addr", val);
 							preServerAddr.setSummary(val);
 						}
 						else
@@ -226,9 +230,8 @@ public class ActSettings extends ActBasePreference {
 					}
 				});
 				Object v = Msgbox.Input(MyApp.CurrentActivity(), "请输入服务器地址:", pl);
-				if(v == null) return false;
-				if(v instanceof String)
-					HttpSoap.SetServerAddr((String)v);
+				if(v == null) return null;
+				if(v instanceof String)	HttpSoap.SetServerAddr((String)v);
 				return v;
 			} catch (Exception e) {
 				ExProc.Show(e);

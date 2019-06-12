@@ -1,23 +1,6 @@
 package hylib.ui.dialog;
 
-import java.lang.ref.PhantomReference;
-import java.util.List;
-
-import com.hc.ID;
-import com.hc.MyApp;
-
-import hylib.data.DataRow;
-import hylib.toolkits.ExProc;
-import hylib.toolkits.gs;
-import hylib.toolkits.type;
-import hylib.util.ParamList;
-import hylib.widget.HyEvent;
-import hylib.widget.HyListAdapter;
-import hylib.widget.HyEvent.LvItemClickEventParams;
-import hylib.widget.HyListView;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -25,9 +8,16 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.TextView;
+
+import java.util.List;
+
+import hylib.toolkits.ExProc;
+import hylib.util.ParamList;
+import hylib.widget.HyEvent;
+import hylib.widget.HyEvent.LvItemClickEventParams;
+import hylib.widget.HyListAdapter;
+import hylib.widget.HyListView;
 
 public class UCCreator {
 	public static Drawable dividerDrawable;
@@ -104,14 +94,14 @@ public class UCCreator {
 			});
 	}
 	
-	public static Shape CreateShape(int color, int radius) {
+	public static Shape CreateShape(int radius) {
 		int outRadius = radius;
 		int innerRadius = radius-1;
 		/*圆角矩形*/
 		float[] innerRadii = {innerRadius, innerRadius, 0, 0, 0, 0, 0, 0};//内矩形 圆角半径
 		float[] outerRadii = {outRadius, outRadius, outRadius, outRadius, outRadius, outRadius, outRadius, outRadius};//左上x2,右上x2,右下x2,左下x2，注意顺序（顺时针依次设置）
 		int spaceBetOutAndInner = outRadius - innerRadius;//内外矩形间距
-		RectF inset = new RectF(spaceBetOutAndInner, spaceBetOutAndInner, spaceBetOutAndInner, spaceBetOutAndInner);
+		//RectF inset = new RectF(spaceBetOutAndInner, spaceBetOutAndInner, spaceBetOutAndInner, spaceBetOutAndInner);
 		RoundRectShape shape = new RoundRectShape(outerRadii, null, innerRadii);
 		
 		return shape;
@@ -125,9 +115,9 @@ public class UCCreator {
         return drawable;
 	}
 	
-	public static ShapeDrawable getShapeDrawable(int color, int strokecolor, int radius) {
-		ShapeDrawable drawable = new ShapeDrawable(CreateShape(0, radius));  
-        drawable.getPaint().setColor(0xFFFFFFFF);
+	public static ShapeDrawable getShapeDrawable(int color, int radius) {
+		ShapeDrawable drawable = new ShapeDrawable(CreateShape(radius));
+        drawable.getPaint().setColor(color);
         drawable.getPaint().setAntiAlias(true);
         return drawable;
 	}

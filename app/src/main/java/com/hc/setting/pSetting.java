@@ -16,6 +16,7 @@ public class pSetting {
     {
         try
         {
+            if(Tables != null) return;
         	Tables = new TableList();
             for(String s : Configs.Tables)
             	Tables.add(new TableInfo(s));

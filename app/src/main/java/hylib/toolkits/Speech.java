@@ -1,17 +1,17 @@
 package hylib.toolkits;
 
-import java.util.Locale;
-
-import com.hc.pu;
-
-import hylib.sys.HyApp;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
+
+import java.util.Locale;
+
+import hylib.sys.HyApp;
 
 public class Speech {
     private static TextToSpeech mTextToSpeech =null; // TTS对象  
 
     public static void Init() {
+        if(mTextToSpeech != null) return;
     	final Context context = HyApp.getAppContext();
         //实例并初始化TTS对象
         mTextToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {

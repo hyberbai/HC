@@ -3,9 +3,6 @@ package hylib.data;
 import hylib.db.SqlDbType;
 import hylib.edit.DType;
 import hylib.toolkits.gv;
-import android.R.drawable;
-import android.provider.SyncStateContract.Constants;
-import android.renderscript.Element.DataType;
 
 
 public class DataColumn {
@@ -118,7 +115,11 @@ public class DataColumn {
 	    	}
 		}
 	}
-	
+
+	public void setDataType(Class<?> cls) {
+		setDataType(DType.valueOf(cls));
+	}
+
 	/**  
 	 * @return  the dataType   
 	*/

@@ -30,10 +30,6 @@ import com.hc.db.DBHelper;
 import com.hc.db.DBLocal;
 import com.hc.mo.sy.ActSy;
 import com.hc.pu;
-import com.hc.report.PrtField;
-import com.hc.report.PrtFieldList;
-import com.hc.report.RptMini;
-import com.hc.tools.Search;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -44,11 +40,7 @@ import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
 import hylib.data.DataSort;
 import hylib.data.DataTable;
-import hylib.data.SelectColInfo;
-import hylib.data.SelectColList;
-import hylib.data.SqlUtils;
 import hylib.db.SqlDataAdapter;
-import hylib.edit.DType;
 import hylib.io.FileUtil;
 import hylib.toolkits.DelayTask;
 import hylib.toolkits.EventHandleListener;
@@ -56,7 +48,6 @@ import hylib.toolkits.ExProc;
 import hylib.toolkits.SpannableStringHelper;
 import hylib.toolkits.Speech;
 import hylib.toolkits.SysOpen;
-import hylib.toolkits._D;
 import hylib.toolkits.gc;
 import hylib.toolkits.gi;
 import hylib.toolkits.gi.CallBack;
@@ -70,7 +61,6 @@ import hylib.ui.dialog.UICreator;
 import hylib.ui.dialog.UIUtils;
 import hylib.util.Param;
 import hylib.util.ParamList;
-import hylib.util.TextAlign;
 import hylib.widget.HyEvent.LvItemClickEventParams;
 import hylib.widget.HyListAdapter;
 import hylib.widget.HyListView;
@@ -429,7 +419,7 @@ public abstract class ActBill extends ActBase {
 		final String[] group = gs.Split("Cls");
 		dt.Sort("Cls,IID");
 		String groupKey = group[0];
-		int amount = 0;
+		float amount = 0;
 		int qty = 0;
 		
 		float totAmount = 0.0f;
@@ -604,18 +594,18 @@ public abstract class ActBill extends ActBase {
 	protected void UpdateTitle() {
 	}
 	
-	public void ChooseCust() throws Exception {
-		if(dtDetail != null && dtDetail.getRowCount() > 0) return;
-
-		try {
-			ParamList pl = new ParamList("hint", "搜索客户");
-			pl.SetValue("MaxListNum", 5);
-			pl.SetValue("LeastInputChars", 2);
-			Search.Execute(context, Search.CUST, "", pl);
-		} catch (Exception e) {
-			ExProc.Show(e);
-		}
-	}
+//	public void ChooseCust() throws Exception {
+//		if(dtDetail != null && dtDetail.getRowCount() > 0) return;
+//
+//		try {
+//			ParamList pl = new ParamList("hint", "搜索客户");
+//			pl.SetValue("MaxListNum", 5);
+//			pl.SetValue("LeastInputChars", 2);
+//			Search.Execute(context, Search.CUST, "", pl);
+//		} catch (Exception e) {
+//			ExProc.Show(e);
+//		}
+//	}
 	
     protected void setChanged(boolean value) {
 		if(LockChange) return;
@@ -781,8 +771,7 @@ public abstract class ActBill extends ActBase {
 		mBID = drBill == null ? 0 : drBill.getIntVal("BID");
 
 		ParamList plEx = new ParamList(drBill == null ? "" : drBill.getStrVal("Ext"));
-//		SetCust(plEx.IntValue("CustID"));
-		
+
 		LoadExtHeader(plEx);
 		
 		//plEx.set("Note", "");
@@ -995,6 +984,7 @@ public abstract class ActBill extends ActBase {
 	
 	public void PrtMiniRpt(String RTName) {
 		try {
+			if(RTName.isEmpty()) return;
 			HyPrt.Print(new gi.IFunc<DataList>() {
 
 			    public  DataList Call() {
@@ -1055,58 +1045,103 @@ public abstract class ActBill extends ActBase {
 		return dt;
 	}
 	
+//	public String getPrintDetail1() {
+//		StringBuilder sb = new StringBuilder();
+//		SelectColList selects = SqlUtils.ParserSqlSelect("FModel, Price, Sum(Qty), Sum(Qty*Price) Amount");
+//		DataTable dt = getReplBillDetail(dtDetail).GroupBy(selects);
+//		dt.getColumn("Amount").setDataType(DType.Money);
+//
+//		int restWidth = HyPrt.MAX_LINECHARS_1X;
+//		PrtFieldList prtFields = new PrtFieldList();
+//		for (SelectColInfo selCol : selects) {
+//			PrtField pfSrc = RptMini.find(selCol.Alias);
+//			if(pfSrc != null)  restWidth -= pfSrc.Len;
+//			PrtField pf = new PrtField(
+//					selCol.Alias,
+//					pfSrc == null ? selCol.Alias : pfSrc.Disp,
+//					pfSrc == null ? 0 : pfSrc.Len,
+//					pfSrc == null ? TextAlign.LEFT : pfSrc.Align
+//				);
+//			pf.ColInfo = selCol;
+//			prtFields.add(pf);
+//		}
+//
+//		for (PrtField pf : prtFields)
+//			if(pf.Len == 0) pf.Len = restWidth;
+//
+//		// 输出表头
+//		for (PrtField pf : prtFields) {
+//			sb.append(gs.padStrA(pf.Disp, pf.Len, pf.Align));
+//		}
+//
+//		sb.append("\n");
+//		sb.append(HyPrt.getSepLine());
+//
+//		// 输出表单
+//		for (DataRow dr : dt.getRows()) {
+//			dr.setValue("Amount", dr.getFVal("Price") * dr.getIntVal("Qty"));
+//			for (PrtField pf : prtFields) {
+//				sb.append(gs.padStrA(RptMini.StrVal(dr.$(pf.Name)), pf.Len, pf.Align));
+//			}
+//			sb.append("\n");
+//		}
+//
+//		// 输出表尾
+//		sb.append(HyPrt.getSepLine());
+//
+//		for (PrtField pf : prtFields) {
+//			Object value = pf == prtFields.get(0) ? "合计:" :
+//						   pf.ColInfo.isStat() ? dt.getRows().Sum(pf.Name) :
+//						   "";
+//			sb.append(gs.padStrA(RptMini.StrVal(value), pf.Len, pf.Align));
+//		}
+//		_D.Out(sb);
+//		return sb.toString();
+//	}
+
+	public void getPrtRowValues(StringBuilder sb, DataRow dr, String[] cols, String[] colDisps) {
+		for (int i = 0; i < cols.length; i++) {
+			String s = gv.StrVal(dr.getValue(cols[i]));
+			if(gv.IsEmpty(s)) continue;
+
+			if(colDisps[i].length() > 0) s = colDisps[i] + "：" + s;
+			AppendLine(sb, s);
+		}
+	}
+
+	public void AppendLine(StringBuilder sb, String s){
+		sb.append(s);
+		if(s.length() < HyPrt.MAX_LINECHARS_1X)
+			sb.append("\n");
+	}
+
 	public String getPrintDetail() {
 		StringBuilder sb = new StringBuilder();
-		SelectColList selects = SqlUtils.ParserSqlSelect("FModel, Price, Sum(Qty), Sum(Qty*Price) Amount");
-		DataTable dt = getReplBillDetail(dtDetail).GroupBy(selects);
-		dt.getColumn("Amount").setDataType(DType.Money);
 
-		int restWidth = HyPrt.MAX_LINECHARS_1X;
-		PrtFieldList prtFields = new PrtFieldList();
-		for (SelectColInfo selCol : selects) {
-			PrtField pfSrc = RptMini.find(selCol.Alias);
-			if(pfSrc != null)  restWidth -= pfSrc.Len;
-			PrtField pf = new PrtField(
-					selCol.Alias,
-					pfSrc == null ? selCol.Alias : pfSrc.Disp,
-					pfSrc == null ?  0 : pfSrc.Len,
-					pfSrc == null ?  TextAlign.LEFT : pfSrc.Align
-				);
-			pf.ColInfo = selCol;
-			prtFields.add(pf);
-		}
-
-		for (PrtField pf : prtFields)
-			if(pf.Len == 0) pf.Len = restWidth;
-		
-		// 输出表头
-		for (PrtField pf : prtFields) {
-			sb.append(gs.padStrA(pf.Disp, pf.Len, pf.Align));
-		}
-
-		sb.append("\n");
 		sb.append(HyPrt.getSepLine());
 
-		// 输出表单
-		for (DataRow dr : dt.getRows()) {
-			dr.setValue("Amount", dr.getFVal("Price") * dr.getIntVal("Qty"));
-			for (PrtField pf : prtFields) {
-				sb.append(gs.padStrA(RptMini.StrVal(dr.$(pf.Name)), pf.Len, pf.Align));
-			}
+		for (DataRow dr : dtDetail.getRows()) {
+			AppendLine(sb, GetLRLine("No." + dr.getStrVal("SNo"), dr.getMoneyVal("Price")));
+			getPrtRowValues(sb, dr,
+					new String[] { "FName", "FModel", "FBatchNo", "FPeriodDate", "Manuf", "Reg" },
+					new String[] { "", 		"型号", 	"批号", 	"效期", 		"", 	"" });
 			sb.append("\n");
 		}
-		
+
 		// 输出表尾
 		sb.append(HyPrt.getSepLine());
 
-		for (PrtField pf : prtFields) {
-			Object value = pf == prtFields.get(0) ? "合计:" :
-						   pf.ColInfo.isStat() ? dt.getRows().Sum(pf.Name) :
-						   "";
-			sb.append(gs.padStrA(RptMini.StrVal(value), pf.Len, pf.Align));
-		}
-		_D.Out(sb);
+		sb.append(GetLRLine("合计：  X " + dtDetail.getRowCount(), gv.FmtMoney(gv.FVal(dtDetail.getRows().Sum("Price")))));
 		return sb.toString();
+	}
+
+	public String GetLRLine(String sLeft, String sRight){
+		int len = HyPrt.MAX_LINECHARS_1X;
+		int i = len - gs.getTextLenA(sLeft) - gs.getTextLenA(sRight);
+		String s = sLeft;
+		if(i > 0) s += gs.nChar(' ', i);
+		s += sRight;
+		return s;
 	}
 	
 	protected void ExportReport()throws Exception {
@@ -1172,7 +1207,7 @@ public abstract class ActBill extends ActBase {
     		//toggleSoftInput();
             if(resultCode == RESULT_OK) {
             	if(requestCode == ActBase.REQ_CODE_SEARCH) {
-                	int tid = data.getIntExtra("tid", 0);
+                	//int tid = data.getIntExtra("tid", 0);
                 	//if(tid == Search.CUST) SetCust(ActSearchItem.drSelected);
                 }
                 if(requestCode == REQ_CODE_EDIT) {

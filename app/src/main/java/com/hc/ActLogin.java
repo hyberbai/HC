@@ -1,6 +1,24 @@
 package com.hc;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+
+import com.hc.dal.WS;
+import com.hc.dal.d;
+import com.hc.tools.boxUtils;
+
 import hylib.data.DataRow;
+import hylib.sys.HyApp;
 import hylib.toolkits.ExProc;
 import hylib.toolkits.gc;
 import hylib.toolkits.gv;
@@ -11,23 +29,6 @@ import hylib.ui.dialog.UIUtils;
 import hylib.util.Param;
 import hylib.util.ParamList;
 import hylib.view.ActivityEx;
-
-import com.hc.dal.*;
-import com.hc.db.DBLocal;
-import com.hc.tools.boxUtils;
-
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Bundle;
-import android.content.Intent;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 
 public class ActLogin extends ActivityEx
 {
@@ -44,15 +45,37 @@ public class ActLogin extends ActivityEx
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		this.setTitle(R.string.act_login_title);
+		//this.setTitle(R.string.act_login_title);
 		// setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
 		// R.drawable.abc_menu_hardkey_panel_holo_dark);
 
 		InitViews();
+
+        $Set(ID.Title, getString(R.string.app_name) + " V" + HyApp.getVersion());
+	}
+
+	public void CreateHeaderBar(){
+		Context context = HyApp.CurrentActivity();
+		UCParamList pl = new UCParamList(
+				"items: [" +
+						"ib: { style: header_button,bgc1:lb, bg:ic_launcher }, " +
+						"tv: { id:Title, fs: 16sp, text: 登录, w:1w, h:wrap, grv:l, color:title_text_color, padding: 8dp }, " +
+						"], style: header_bar");
+
+		ParamList plStyles = new ParamList(new Object[]{
+				"header_button: { w:27dp, h:27dp, margin: 6dp }",
+				"header_bar: { hor, grv:c, margin: 0dp, h:wrap, w:match, padding: 0dp, color: w, bgc: head_layout_bg_color }",
+		});
+
+		pl.setStyles("styles", plStyles);
+
+		View pnlHeader = UICreator.CreatePanel(context, pl);
+		getRootLayout().addView(pnlHeader);
 	}
 
 	public void InitViews() {
 		try {
+			CreateHeaderBar();
 			CreatePanel();
 
 			etName = $(ID.User) ;
@@ -87,14 +110,8 @@ public class ActLogin extends ActivityEx
 
 			RefreshState();
 			btnLogin = $(ID.Login);
-			//UICreator.SetViewParam(btnLogin, "margin:10dp");
-			btnLogin.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					Login();
-				}
-			});
 
+			BindingClickEvent($(ID.SynData), $(222));
 			BindingValueChangeEvent(etCust, etStock);
 			BindingFocusChangeEvent(etName, etPwd, etCust, etStock);
 			
@@ -108,7 +125,18 @@ public class ActLogin extends ActivityEx
 			ExProc.Show(e);
 		}
 	}
-	
+
+	private void SynUserData(){
+		try{
+			MainActions.SynData(new String[] { "User", "Emp" }, null, "用户数据", true);
+			d.Init();
+			RefreshState();
+			gc.Hint("同步用户数据完成！");
+		} catch (Exception e) {
+			ExProc.Show(e);
+		}
+	}
+
 	@Override
 	public void onTextChanged(Object sender, ParamList arg) {
 		try {
@@ -138,6 +166,13 @@ public class ActLogin extends ActivityEx
 	}
 
 	@Override
+	public void onClick(View v) {
+		int id = v.getId();
+		if(v == btnLogin) Login();
+		if(id == ID.SynData || id == 222) SynUserData();
+	}
+
+	@Override
 	protected void onStop() {
 		super.onStop();
 	}
@@ -149,18 +184,20 @@ public class ActLogin extends ActivityEx
 	
     protected void CreatePanel() {
 		// 手工录入产品信息
-        String config = "items: [" + 
-//    		"[et: { title: '单价', w: 3w }, et: { title: '单位', marginLeft: 10dp, lw: match, w: 2w } ], " + 
+        String config = "items: [" +
 //    		"[et: { text: '单价', w: 3w }, et: {  text: '单位', lw: match, w: 2w } ], " + 
         		
-        	"et: { id:" + ID.User + ", color: text, hint: '用户名', }, " + 
-        	"et: { id:" + ID.Pwd + ", color: text,hint: '密　码', pwd }, " + 
-        	"et: { id:" + ID.Cust + ", color: text,hint: '客　户'  }, " + 
-        	"et: { id:" + ID.Stock + ", color: text,hint: '库  位'  }, " + 
-        	"chk: { id:" + ID.RemPwd + ", text: '记住密码', color: #ff2080bf, fs:13sp, w: wrap, lay-grv: r }, " + 
-        	"btn: { id:" + ID.Login + ", text: '登录', marginTop: 20dp, style: btn  }, " +  
+        	"et: { id:User, color: text, hint: '用户名', }, " +
+        	"et: { id:Pwd , color: text,hint: '密　码', pwd }, " +
+        	"et: { id:Cust, color: text,hint: '客　户'  }, " +
+        	"et: { id:Stock, color: text,hint: '库  位'  }, " +
+			"[btn: { id: SynData, bg: refresh_96, marginLeft: 3dp, w:20dp, h: 20dp, lay-grv:c }, " +
+			 "tv: { id:222, text: '同步用户', color: #ff2080bf, fs:13sp, margin: 3dp, w:1w, lay-grv:c }, " +
+			 "chk: { id: RemPwd, text: '记住密码', color: #ff2080bf, fs:13sp, w: wrap, lay-grv: r }," +
+		    "], " +
+        	"btn: { id: Login, text: '登录', marginTop: 20dp, style: btn  }, " +
         //    "btn: { id:" + ID.Exit + ", text: '退出', style: btn  }, " + 
-        "], width: 60dp, margin: 10dp";
+        "], width: 60dp, margin: 10dp, space: 0";
 
         //items[*.id]==
         try {
@@ -177,13 +214,11 @@ public class ActLogin extends ActivityEx
             vg.setLayoutParams(lp);
             
             this.getRootLayout().addView(vg, 1);
-
 		} catch (Exception e) {
 			ExProc.Show(e);
 		}
 	}
 	
-
     public ParamList findPanelItemPM(ParamList pl, int id) throws Exception {
         Object[] os = type.as(pl.get("items"), Object[].class);
         for (Object o : os) {
@@ -197,7 +232,7 @@ public class ActLogin extends ActivityEx
 	public void Login() {
 		final String name = etName.getText().toString();
 		final String pwd = etPwd.getText().toString();
-	//	etPwd.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL);
+		//etPwd.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL);
 		RefreshState();
 		// 登陆验证
 		try {

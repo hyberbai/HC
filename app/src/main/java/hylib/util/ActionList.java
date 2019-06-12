@@ -1,18 +1,14 @@
 package hylib.util;
 
-import hylib.toolkits.EventHandleListener;
-import hylib.toolkits._D;
-import hylib.toolkits.gs;
-
 import java.util.ArrayList;
-import java.util.EventListener;
 
-import android.R.bool;
+import hylib.toolkits.EventHandleListener;
+import hylib.toolkits.gs;
 
 public class ActionList extends ArrayList<ActionInfo>
 {
 	private static final long serialVersionUID = 1L;
-	private static ActionList mIntance = new ActionList();
+	private static ActionList mIntance;
 	
 	public EventHandleListener onPropChangedListener;
 	
@@ -71,6 +67,15 @@ public class ActionList extends ArrayList<ActionInfo>
     
     
     /*************************** 静态实例调用  **********************************/
+
+	public static boolean isInstEmpty() {
+		return mIntance == null;
+	}
+
+	public  static void Init(){
+		 mIntance = new ActionList();
+	}
+
     public static void Add(String title, String name, int resID) {
     	mIntance.add(title, name, resID);
 	}
@@ -85,7 +90,8 @@ public class ActionList extends ArrayList<ActionInfo>
     	ActionInfo act = outACL.get(name);
     	if(act == null) {
     		act = mIntance.get(name);
-    		outACL.add((ActionInfo)(act.clone()));
+    		if(act != null)
+    			outACL.add((ActionInfo)(act.clone()));
     	}
     	return act;
 	}

@@ -112,8 +112,8 @@ public class HttpSoap {
 		String soapAction = "http://tempuri.org/" + methodName;
 		
 		String soapBody = "<" + methodName + " xmlns='http://tempuri.org'>" +
-						methodParams +
-						 "</" + methodName + ">";
+						  methodParams +
+						  "</" + methodName + ">";
 
 		String sRequest = "<?xml version='1.0' encoding='utf-8'?>" +
 						  "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>" +

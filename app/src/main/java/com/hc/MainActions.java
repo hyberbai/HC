@@ -24,6 +24,7 @@ import hylib.toolkits.TempV;
 import hylib.toolkits.gc;
 import hylib.toolkits.gi;
 import hylib.toolkits.gi.CallBack;
+import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.ui.dialog.LoadingDialog;
 import hylib.ui.dialog.Msgbox;
@@ -44,6 +45,12 @@ public class MainActions {
 			"Cust", "StockCust", "Manuf", "PCodeRules", "YY",
 			"ProductReps", "StockBill", "StockBillEntry"
 	};
+	public static Param[] synGroupItems =  new Param[]{
+			new Param("基础数据", "Item, ItemCls, User, Emp, Dept, Manuf, Stock, YY, StockCust, Cust, PriceCust, PricePlanDetail, PCodeRules"),
+			new Param("流水记录", "SN"),
+			new Param("历史单据", "StockBill, StockBillEntry"),
+	};
+
 
 	/**
 	 * 打开单据
@@ -62,10 +69,11 @@ public class MainActions {
 	/**
 	 * 打开金蝶单据
 	 */
-	public static void OpenStockBill(Activity parent, int CID, int ID) {
+	public static void OpenStockBill(Activity parent, int CID, int ID, boolean isRealTime) {
 		Class<?> cls = ActStockBill.class;
 		
 		ParamList pl = new ParamList(
+				new Param("IsRealTime", isRealTime),
 				new Param("ID", ID), 
 				new Param("CID", CID) 
 		);
@@ -114,31 +122,38 @@ public class MainActions {
 		getSynParam(pl);
 
 		try {
-
-			int count = SynData(synItems, pl, showHint);
-
+			WS.showLoading = showHint;
+			int count = SysGroupData(synGroupItems, pl, showHint);
 			if(showHint) gc.Hint(String.format("数据同步完成！\n导入数据 %d 条", count));
 		} catch (Exception e) {
 			ExProc.Show(e);
 		} finally {
-			LoadingDialog.Hide();
+			LoadingDialog.ImmeClose();
+			WS.showLoading = true;
 		}
 	}
-	
-	public static int SynData(final String[] items, ParamList pl, final boolean showLoading) throws Exception {
+
+	public static int SysGroupData(Param[] groups, ParamList pl, boolean showHint) throws Exception {
+		int count = 0;
+		for(Param group : groups) {
+			String[] items = gs.Split((String)group.Value, ",");
+			count += SynData(items, pl, group.Name, showHint, false);
+		}
+		return count;
+	}
+
+	public static int SynData(final String[] items, ParamList pl, String info, final boolean showLoading, boolean autoCloseLoading) throws Exception {
 		final TempV tmp = new TempV();
 		
-		if(showLoading) LoadingDialog.Show("正在接收数据...");
+		if(showLoading) LoadingDialog.Show("正在接收" + info + "...");
 
 		try {
-			WS.showLoading = showLoading;
-			
+			final TempV tc = new TempV();
+			tmp.S = "";
 			// 同步服务器数据
 			final ParamList result = WS.SynData(items, pl);
-			final TempV tc = new TempV();
-			
 			// 更新数据库
-			if(showLoading) LoadingDialog.Show("同步更新数据库...");
+			if(showLoading) LoadingDialog.Show("更新" + info + "...");
 			MyApp.ExecThreadCallBack(new gi.CallBack() {
 				@Override
 				public Object Call() throws Exception {
@@ -161,16 +176,20 @@ public class MainActions {
 			}, showLoading);
 			return tc.I;
 		} catch (Exception e) {
+			LoadingDialog.ImmeClose();
 			ExProc.ThrowMsgEx("数据同步失败！" + tmp.S, e);
 			return 0;
 		}
 		finally {
-			WS.showLoading = true;
-			LoadingDialog.ImmeClose();
+			if(autoCloseLoading) LoadingDialog.ImmeClose();
 		}
 	}
 
-	static int MaxSynDays = 14;	// 最多同步天数，只保留该天数金蝶的单据数据 
+	public static int SynData(final String[] items, ParamList pl, String info, final boolean showLoading) throws Exception {
+		return SynData(items, pl, info, showLoading, true);
+	}
+
+	static int MaxSynDays = 7;	// 最多同步天数，只保留该天数金蝶的单据数据
 	static int HotSynDays = 3;	// 热同步天数，保证与金蝶数据完全同步
 	static Date dateStart = gv.DateAdd(gv.getNowDate(), -MaxSynDays);
 	static Date dateSyn =  gv.DateAdd(gv.getNowDate(), -HotSynDays);
@@ -191,7 +210,7 @@ public class MainActions {
 				pl.SetValue("FID", FID);
 			else
 				pl.SetValue("dateFrom", dateSyn);
-			SynData(new String[] { "StockBill", "StockBillEntry" }, pl, true);
+			SynData(new String[] { "StockBill", "StockBillEntry" }, pl, "历史单据", true);
 
 		} catch (Exception e) {
 			ExProc.Show(e);

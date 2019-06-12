@@ -1,42 +1,27 @@
 package com.dev;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.util.List;
-
-import android.R.bool;
-import android.R.integer;
-import android.app.Activity;
-import android.app.Dialog;
 import android.bluetooth.BluetoothClass;
-import android.content.DialogInterface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
-import android.posapi.PosApi;
 
 import com.dev.prt.BtService;
 import com.dev.prt.DeviceInfo;
 import com.dev.prt.PrinterClass;
 import com.dev.util.PrintQueue;
-import com.hc.ActBase;
-import com.hc.MyApp;
 import com.hc.SysData;
 
-import hylib.data.DataRow;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
 import hylib.data.DataTable;
-import hylib.sys.HyApp;
 import hylib.sys.LoopMsg;
 import hylib.toolkits.ExProc;
-import hylib.toolkits._D;
 import hylib.toolkits.gc;
 import hylib.toolkits.gcon;
 import hylib.toolkits.gi;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.ui.dialog.LoadingDialog;
-import hylib.ui.dialog.Msgbox;
-import hylib.util.ParamList;
 
 public class HyPrt {
 	private static PrintQueue mPrintQueue = null;
@@ -86,6 +71,7 @@ public class HyPrt {
     
 	public static void Init(){
 		try {
+			if(prtHandler != null) return;
 			prtHandler = new MyHandler();
 			
 			if(Dev.isPL50()) {

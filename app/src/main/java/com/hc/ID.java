@@ -3,7 +3,6 @@ package com.hc;
 import java.lang.reflect.Field;
 
 import hylib.toolkits._D;
-import hylib.util.Param;
 import hylib.util.ParamList;
 
 
@@ -23,14 +22,18 @@ public class ID {
 	public static int Title = 300;
 	public static int Stats = 301;
 	public static int Total = 302;
-	
+
 	public static int Info = 1000;
 	public static int Input = 1001;
 	public static int Summary = 1009;
 
+
+	public static int Icon = 1201;
+
 	public static int User = newID();		// 用户
 	public static int Pwd = newID();		// 密码
 	public static int Stock = newID();		// 仓库
+	public static int SynData = newID();	// 同步数据
 	public static int Cust = newID();		// 客户
 	public static int RemPwd = newID();		// 记住密码
 	public static int Login = newID();		// 登录

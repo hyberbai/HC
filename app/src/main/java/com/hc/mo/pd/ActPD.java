@@ -184,17 +184,17 @@ public class ActPD extends ActBase {
 			lvPD.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 				
 				public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id){
-					//UICreator.CreatePopupMenu(MyApp.CurrentActivity(), v, new String[] { "重置", "全部重置" });
-					SelectInvItem(dtInv.getRow(position));
-		        	ParamList pl = new ParamList("width", "240dp");
-					Msgbox.Choose("", new String[] { "重置", "全部重置" }, pl, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if(which == 0) ActReset(false); 
-							if(which == 1) ActReset(true); 
-						}
-					});
-		        	return true;
+				//UICreator.CreatePopupMenu(MyApp.CurrentActivity(), v, new String[] { "重置", "全部重置" });
+				SelectInvItem(dtInv.getRow(position));
+				ParamList pl = new ParamList("width", "240dp");
+				Msgbox.Choose("", new String[] { "重置", "全部重置" }, pl, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					if(which == 0) ActReset(false);
+					if(which == 1) ActReset(true);
+					}
+				});
+				return true;
 		        }
 			});
 
@@ -555,7 +555,6 @@ public class ActPD extends ActBase {
 		mStat.SetTotal(total.getQty());
 		mStat.setItemCount(100, total.getQty());
 		mStat.Inc(gcon.S_CHECKED, total.getOkQty());
-		mStat.Inc(gcon.S_CHECKED, total.getOkQty());
 		mStat.Inc(gcon.S_WRONG, total.getWrongQty());
 		mStat.Inc(gcon.S_EXTRA, total.getExtraQty());
 		mStat.LockChange = false;
@@ -858,7 +857,9 @@ public class ActPD extends ActBase {
 //	    			if(state == 0) ExProc.ThrowMsgEx("没有选择盘点状态！");
 	    			if(state == gcon.S_WRONG && note.isEmpty())
 	    				ExProc.ThrowMsgEx("请在备注中说明导致异况的原因！");
-	    			
+
+					if(drDetail == null) ExProc.ThrowMsgEx("系统异常，数据行为空！");
+
 	    			drDetail.updateValue("Note", note);
 	    			SetPDState(drDetail, dlgPdNote.GetState());
 	    			dlgPdNote.setDialogResult(HyDialog.R_OK);
@@ -944,7 +945,7 @@ public class ActPD extends ActBase {
 				String Unit = drInv.getStrVal("FUnit");
 				if(Unit.isEmpty()) Unit = "个";
 				String stext = state == gcon.S_CHECKED ? "[n0]" + sq.getPDQty() + Unit :
-							   state == gcon.S_EXTRA ? "多出[n0]" + sq.getExtraQty() + Unit :
+							   state == gcon.S_EXTRA ? "加一" :
 							   "";
 				Speech.Speak(stext);
 				g.Vibrate(this, 80);

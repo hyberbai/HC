@@ -1,39 +1,27 @@
 package hylib.view;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
 import com.hc.ID;
 import com.hc.R;
-import com.hc.tools.ActInputProduct;
 
 import hylib.toolkits.EventHandleListener;
 import hylib.toolkits.ExProc;
-import hylib.toolkits.gcon;
-import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.toolkits.type;
 import hylib.ui.dialog.UIUtils;
 import hylib.util.ActionList;
 import hylib.util.Param;
 import hylib.util.ParamList;
-import android.R.bool;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Rect;
-import android.os.Bundle;
-import android.view.*;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
 public class ActivityEx extends Activity 
 {
@@ -60,6 +48,17 @@ public class ActivityEx extends Activity
 		} catch (Exception e) {
 			ExProc.Show(e);
 		}
+	}
+
+	public void BindingClickEvent(View... views) {
+		View.OnClickListener onClickListener = new View.OnClickListener() {
+			public void onClick(View v) {
+				context.onClick(v);
+			}
+		};
+
+		for (View v : views)
+			v.setOnClickListener(onClickListener);
 	}
 	
 	public void BindingValueChangeEvent(View... views) {
@@ -180,7 +179,7 @@ public class ActivityEx extends Activity
 		finish();
     }
 
-	public ViewGroup getContentView()  
+	public ViewGroup getContentView()
     {  
         return (ViewGroup)$(android.R.id.content);  
     }

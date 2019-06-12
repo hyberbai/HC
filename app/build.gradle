@@ -1,14 +1,9 @@
 apply plugin: 'com.android.application'
 
+ext.appName = "HC"
+ext.appVersionName = "1.06"
+ext.appReleaseDir = "E\\:/_AS/HC"
 
-// 默认版本号
-ext.appVersionCode = 1
-// 默认版本名
-ext.appVersionName = "1.0"
-// 默认apk输出路径
-ext.appReleaseDir = "..\\"
-// 默认正式包后缀名
-ext.appSuffixName = "HC.apk"
 
 def loadProperties() {
 
@@ -18,12 +13,9 @@ def loadProperties() {
         pro.load(stream)
     }
     appReleaseDir = pro.appReleaseDir
-    appVersionCode = Integer.valueOf(pro.appVersionCode)
-    appVersionName = pro.appVersionName
-    appSuffixName = pro.appSuffixName
-
 //    appVersionCode = Integer.valueOf(p.appVersionCode)
-//    appVersionName = p.appVersionName
+   // appVersionName = pro.appVersionName
+   // appSuffixName = pro.appSuffixName
 }
 
 loadProperties()
@@ -36,7 +28,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 20
         versionCode 1
-        versionName "1.0"
+        versionName appVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true
@@ -76,7 +68,7 @@ android {
     applicationVariants.all{ variant->
         variant.outputs.each { output->
             def path = appReleaseDir;
-            def apkName = "HC";
+            def apkName = appName;
             if(variant.buildType.name == 'release'){
                 //path += '/' + getDate()
               //  apkName += '.release'
@@ -84,6 +76,7 @@ android {
             if(variant.buildType.name == 'beta'){
                 apkName += '.beta'
             }
+
             if(variant.buildType.name == 'debug'){
                 apkName += '.debug'
             }

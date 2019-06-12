@@ -1,9 +1,7 @@
 package hylib.util;
 
-import android.R.bool;
-import android.R.integer;
-import android.R.raw;
 import hylib.toolkits.gs;
+import hylib.toolkits.gv;
 
 public class SimpleLex {
     // LexToken
@@ -177,8 +175,28 @@ public class SimpleLex {
     {
         String text = new String(S, i0, i - i0);
         if (Token != LT_String) return text;
-        if(text.indexOf('\"') >= 0) return text.replace("\\\"", "\"");
-        if(text.indexOf('\'') >= 0) return text.replace("\\\'", "\'");
+        if (text.indexOf('\\') >= 0)
+        {
+            char[] cc = text.toCharArray();
+            int index = 0;
+            for (int n = 0; n < text.length(); n++)
+            {
+                if (cc[n] == '\\' && n < cc.length - 1){
+                    char c = cc[n + 1];
+                    c = gv.In(c, '\\', '\"', '\'') ? c:
+                            c == 'n' ? '\n' :
+                            c == 'r' ? '\r' :
+                            '\0';
+                    if(c != 0) {
+                        n++;
+                        cc[n] = c;
+                    }
+                }
+                cc[index++] = cc[n];
+            }
+            if (index < S.length) text = new String(cc, 0, index);
+        }
+
         return text;
     }
 
@@ -194,15 +212,36 @@ public class SimpleLex {
         SetLast();
     }
 
+    protected char GetChr(int n)
+    {
+        n += i;
+        return n >= 0 && n < S.length ? S[n] : '\0';
+    }
+
     private void NextStr(char cTo)
     {
         while (i < S.length)
         {
-            if (S[i] == cTo)
-                if (i < 1 || S[i - 1] != '\\') break;   // 如果在引号前没有转义符则识读完成
+            char c = S[i];
+            if (c == '\\')
+            {
+                char nc = GetChr(1);
+                if (nc == cTo || nc == '\\') i++;
+            }
+            else if (c == cTo) break;   // 如果在引号前没有转义符则识读完成
             i++;
         }
     }
+
+//    private void NextStr(char cTo)
+//    {
+//        while (i < S.length)
+//        {
+//            if (S[i] == cTo)
+//                if (i < 1 || S[i - 1] != '\\') break;   // 如果在引号前没有转义符则识读完成
+//            i++;
+//        }
+//    }
 
     public void Next(char cTo)
     {

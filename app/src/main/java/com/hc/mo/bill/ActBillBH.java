@@ -1,33 +1,18 @@
 package com.hc.mo.bill;
 
-import hylib.data.DataRow;
-import hylib.data.DataRowCollection;
-import hylib.toolkits.EventHandleListener;
-import hylib.toolkits.ExProc;
-import hylib.toolkits.SpannableStringHelper;
-import hylib.toolkits.gc;
-import hylib.ui.dialog.Msgbox;
-import hylib.ui.dialog.UIUtils;
-import hylib.util.ParamList;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
-import com.dev.ZltdDecoder;
 import com.hc.ID;
-import com.hc.MainActivityOld;
-import com.hc.MyApp;
 import com.hc.R;
 import com.hc.SysData;
-import com.hc.MyApp.WorkState;
-import com.hc.R.id;
-import com.hc.R.layout;
 import com.hc.dal.Bill;
+
+import hylib.data.DataRowCollection;
+import hylib.toolkits.gc;
+import hylib.ui.dialog.Msgbox;
+import hylib.util.ParamList;
 
 /**
  * 备货补货单 
@@ -46,7 +31,7 @@ public class ActBillBH extends ActBill {
 	@Override
     protected ParamList GetHeaderConfig() throws Exception {
         String config = "items: [" + 
-        		"et: { id:" + ID.FNote + ", text: '备　注' }, " + 
+        		"et: { id:" + ID.FNote + ", title: '备　注' }, " +
         "]";
 
         return new ParamList(config);

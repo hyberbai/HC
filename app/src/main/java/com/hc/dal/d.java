@@ -1,39 +1,28 @@
 package com.hc.dal;
 
+import android.database.sqlite.SQLiteDatabase;
+
+import com.hc.SysData;
+import com.hc.db.DBHelper;
+import com.hc.db.DBLocal;
+import com.hc.setting.pSetting;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import hylib.data.DataRow;
-import hylib.data.DataRowCollection;
 import hylib.data.DataTable;
 import hylib.data.TableInfo;
 import hylib.db.SqlDataAdapter;
 import hylib.sys.HyApp;
 import hylib.toolkits.EventHandleListener;
-import hylib.toolkits.ExProc;
-import hylib.toolkits._D;
 import hylib.toolkits.gs;
-import hylib.toolkits.gv;
 import hylib.toolkits.gs.CutResult;
+import hylib.toolkits.gv;
 import hylib.ui.dialog.UICreator;
-import hylib.util.Param;
 import hylib.util.ParamList;
 import hylib.widget.HyListAdapter;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import org.w3c.dom.UserDataHandler;
-
-import android.R.integer;
-import android.database.sqlite.SQLiteDatabase;
-import android.widget.ArrayAdapter;
-
-import com.hc.MyApp;
-import com.hc.SysData;
-import com.hc.db.*;
-import com.hc.setting.pSetting;
-import com.hc.R;
 
 // 数据结构类
 public class d {
@@ -44,20 +33,22 @@ public class d {
 	public static String tpwd = "t1809";
     
     public static void Init() throws Exception {
+		if(dtStock != null) return;
 	        // DBLocal.CheckDB();
     	
 //		if(WS.IsConnected())
 //			dtStock = WS.GetStockInfo();
 //		else 
-		dtStock = DBLocal.OpenSingleTable("Stock");
-		dtCust = DBLocal.OpenSingleTable("Cust");
-		dtEmp = DBLocal.OpenSingleTable("Emp");
+		dtStock = DBLocal.OpenSingleTable("Stock", "select * from Stock order by FNumber");
+		dtCust = DBLocal.OpenSingleTable("Cust", "select * from Cust order by FNumber");
+		dtEmp = DBLocal.OpenSingleTable("Emp", "select * from Emp order by FNumber");
 		dtUser = DBLocal.OpenTable(DBHelper.Cfg_User + "|EID/i", "select u.*, e.FItemID EID from User u join Emp e on u.FName=e.FName");
 		
 		UnitInit();
     }
     
     public static void UnitInit() {
+		if(UICreator.onGetAdapter != null) return;
     	UICreator.onGetAdapter = new EventHandleListener() {
 			
 			@Override

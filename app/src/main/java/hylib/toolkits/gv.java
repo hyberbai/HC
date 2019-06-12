@@ -1,9 +1,11 @@
 package hylib.toolkits;
 
+import android.annotation.SuppressLint;
+import android.util.SparseArray;
+
 import java.lang.reflect.Array;
 import java.text.Collator;
 import java.text.DecimalFormat;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
@@ -12,11 +14,9 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.R.integer;
-import android.annotation.SuppressLint;
-import android.util.SparseArray;
-import hylib.data.*;
-import hylib.util.*;
+import hylib.data.DataTable;
+import hylib.util.Param;
+import hylib.util.ParamList;
 
 public class gv {
 	public static String FMT_DATE = "yyyy-MM-dd";
@@ -46,14 +46,31 @@ public class gv {
 	
 	public static Object ConvertType(Object value, Object refValue) {
 		if(refValue == null) return value;
-		Class<?> cls = refValue.getClass();
+		return ConvertType(value, refValue.getClass());
+	}
+	public static Object ConvertType(Object value, Class<?> cls) {
 		if(cls == String.class) return gv.StrVal(value);
 		if(cls == Integer.class) return gv.IntVal(value);
+		if(cls == short.class) return (short)gv.IntVal(value);
 		if(cls == Float.class) return gv.FVal(value);
 		if(cls == Double.class) return gv.DoubleVal(value);
 		if(cls == Date.class) return gv.DateVal(value);
 		if(cls == Boolean.class) return gv.BoolVal(value);
 		return value;
+	}
+
+	public static Class<?> GetTypeByName(String typeName)
+	{
+		typeName = typeName.toLowerCase();
+		if (typeName == "s") return String.class;
+		if (typeName == "i" || typeName == "int") return Integer.class;
+		if (typeName == "d" || typeName == "dt" || typeName == "datetime") return Date.class;
+		if (typeName == "b" || typeName == "bool") return Boolean.class;
+		if (typeName == "m" || typeName == "dec") return Double.class;
+		if (typeName == "f") return Float.class;
+		if (typeName == "sint") return short.class;
+		if (typeName == "byte") return Byte.class;
+		return null;
 	}
 
     public static Object Max(Object o1, Object o2)
@@ -450,7 +467,51 @@ public class gv {
     	for(int i = 0; i < size; i++) a[i] = defValue;
     	return a;
     }
-	
+
+	public enum SerializeOption
+	{
+		None(0),
+		SingleQuote(1),    // 字符串加单引号
+		UseEscape(2);      // 使用转义符
+
+		private int  mOption = 0;
+		private SerializeOption(int value)
+		{
+			mOption = value;
+		}
+
+		public boolean Contains(SerializeOption value)
+		{
+			return (mOption & value.mOption)  != 0;
+		}
+
+		public void Include(SerializeOption value)
+		{
+			mOption |= value.mOption;
+		}
+
+		public void Exclude(SerializeOption value)
+		{
+			 mOption &= ~value.mOption;
+		}
+	}
+
+	private static char strQuoteChar = '\"';
+	private static char strQuoteChar1 = '\'';
+	private static SerializeOption mSerializeOptions = SerializeOption.None;
+	public static void SetSerializeOptions(SerializeOption include, SerializeOption exclude)
+	{
+		mSerializeOptions.Include(include);
+		mSerializeOptions.Exclude(exclude);
+		boolean isSingleQuote = mSerializeOptions.Contains(SerializeOption.SingleQuote);
+		strQuoteChar = isSingleQuote ? '\'' : '\"';
+		strQuoteChar1 = isSingleQuote ? '\"' : '\'';
+	}
+
+	public static void SetSerializeOptions(SerializeOption include) {
+		SetSerializeOptions(include, SerializeOption.None);
+	}
+
     public static String SerializeStr(String v)
     {
         if (v == null) return "";
@@ -463,10 +524,29 @@ public class gv {
             if(c0 == c1 && (c0 == '\"' || c0 == '\'' )) return v;   // 已添加过引号忽略处理
         }
 
-        if (v.indexOf('\"') > 0) return '\"' + v.replace("\"", "\\\"") + '\"'; // 加转义符
-        for(char c : v.toCharArray())
-        	if (" ,;|:={}[]()\'\t\r\n".indexOf(c) >= 0) return '\"' + v + '\"'; // 需要添加引号的情况
-        return v;
+		int flag = 0;
+		if (v.indexOf(strQuoteChar) >= 0)
+			flag = 1; // 加转义符
+		else {
+			String needQuoteChars  = strQuoteChar1 + " ,;|:={}[]()\t\r\n";
+			for (char c : v.toCharArray())
+			if (needQuoteChars.indexOf(c) >= 0)
+			{
+				flag = 2; // 需要添加引号的情况
+				break;
+			}
+		}
+		if (flag > 0)
+		{
+			if (v.indexOf('\\') >= 0) v = v.replace("\\", "\\\\");
+			if (flag == 1) return strQuoteChar + v.replace(String.valueOf(strQuoteChar), "\\" + strQuoteChar) + strQuoteChar; // 加转义符
+			//if (v[v.Length - 1] == '\\') return '\"' + v + "\\\"";
+			v = strQuoteChar + v + strQuoteChar;
+		}
+
+		if (mSerializeOptions.Contains(SerializeOption.UseEscape))
+			v = v.replace("\n", "\\n").replace("\r", "\\r");
+		return v;
     }
 
     public static String SerializeArray(int[] arr)

@@ -1,51 +1,32 @@
 package com.hc.mo.bill;
 
-import java.lang.annotation.Retention;
-import java.util.HashMap;
-import java.util.Map;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.view.View;
+import android.widget.TextView;
+
+import com.hc.MainActions;
+import com.hc.R;
+import com.hc.SysData;
+import com.hc.dal.Bill;
+import com.hc.dal.d;
+import com.hc.db.DBHelper;
+import com.hc.db.DBLocal;
 
 import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
 import hylib.data.DataTable;
-import hylib.io.FileUtil;
-import hylib.toolkits.EventHandleListener;
 import hylib.toolkits.ExProc;
 import hylib.toolkits.HyColor;
 import hylib.toolkits.SpannableStringHelper;
-import hylib.toolkits.gc;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.toolkits.type;
 import hylib.ui.dialog.Msgbox;
-import hylib.ui.dialog.UCCreator;
-import hylib.util.ActionInfo;
 import hylib.util.Param;
 import hylib.util.ParamList;
 import hylib.widget.HyEvent;
-import hylib.widget.HyListAdapter;
 import hylib.widget.HyListView;
-import hylib.widget.HyEvent.LvItemClickEventParams;
-import android.R.integer;
-import android.R.string;
-import android.content.DialogInterface;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.nfc.NfcAdapter.CreateBeamUrisCallback;
-import android.util.Base64;
-import android.view.View;
-import android.widget.ListAdapter;
-import android.widget.TextView;
-
-import com.hc.MainActions;
-import com.hc.MyApp;
-import com.hc.R;
-import com.hc.SysData;
-import com.hc.pu;
-import com.hc.dal.Bill;
-import com.hc.dal.WS;
-import com.hc.dal.d;
-import com.hc.db.DBHelper;
-import com.hc.db.DBLocal;
 
 public class ActHisListBill extends ActHisList {
 
@@ -56,7 +37,7 @@ public class ActHisListBill extends ActHisList {
 		pageNames = "全部, 使用单, 补货单, 返货单";
 		mTitle = "历史记录";
     }
-    
+
 	@Override
     public HyListView CreateList(int CID) throws Exception{
 		return super.CreateList(CID);

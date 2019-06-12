@@ -1,5 +1,21 @@
 package hylib.widget;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.TextView;
+
+import com.hc.ID;
+import com.hc.R;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
 import hylib.toolkits.ExProc;
@@ -12,22 +28,6 @@ import hylib.toolkits.type;
 import hylib.ui.dialog.ListItemViewInfo;
 import hylib.ui.dialog.UICreator;
 import hylib.util.ParamList;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.hc.ID;
-import com.hc.R;
-
-import android.content.Context;
-import android.graphics.Color;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.TextView;
 
 public class HyListAdapter extends BaseAdapter implements Filterable {
 	private LayoutInflater inflater;
@@ -212,7 +212,7 @@ public class HyListAdapter extends BaseAdapter implements Filterable {
 	private View CreateDefaultConvertView(){
 		ParamList config = new ParamList("items: [" + 
         	"tv: { id:Info, fs: 16dp, text: info,w:match,bgc1:r,color:black, padding: 8dp,h:wrap }, "+ 
-			"], grv: c, padding: 0dp, margin: 0dp, w:match, h:wrap, bg1:#33CCAAFF");
+			"], grv: c, padding: 0dp, margin: 0dp, w:match, h:wrap, bg1:#33CCAAFF, lp-type: listview");
 		return UICreator.CreatePanel(context, config);
 	}
 	
@@ -234,6 +234,7 @@ public class HyListAdapter extends BaseAdapter implements Filterable {
 						}
 						else {
 							ParamList config = pl.GetParamList("itemViewConfig");
+							config.SetValue("lp-type", "listview");
 							convertView = config.isEmpty() ? listAdapter.CreateDefaultConvertView() :
 										  UICreator.CreatePanel(context, config);
 						}

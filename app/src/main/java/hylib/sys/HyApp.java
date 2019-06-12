@@ -1,24 +1,23 @@
 package hylib.sys;
 
-import hylib.toolkits.*;
-import hylib.ui.dialog.LoadingDialog;
-
-import java.lang.Thread.UncaughtExceptionHandler;
-
-import com.hc.R;
-import com.hc.g;
-
-import android.R.integer;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.view.View;
-import android.widget.Toast;
 
-public class HyApp extends Application {
+import java.lang.Thread.UncaughtExceptionHandler;
+
+import hylib.toolkits.TempV;
+import hylib.toolkits._D;
+import hylib.toolkits.gc;
+import hylib.toolkits.gi;
+import hylib.ui.dialog.LoadingDialog;
+
+public class HyApp extends Application implements UncaughtExceptionHandler  {
     private HyActivityLifecycleCallbacks mActLifecycleCallbacks;
     
     public Context mContext;
@@ -38,8 +37,14 @@ public class HyApp extends Application {
 
 	public void Init() {
 		Resources = mContext.getResources();
+	//	CrashHandler.getInstance().init(this);
 	}
 
+	@Override
+	public void uncaughtException(Thread thread, Throwable ex) {
+		//ExProc.Show(ex);
+		thread.setDefaultUncaughtExceptionHandler( this);
+	}
 	
 	/************************** 以下是静态方法 ******************************/
     private static HyApp mInstance = null;
@@ -55,7 +60,17 @@ public class HyApp extends Application {
 		return mInstance.mContext;
 	}
 
-    public static int getResId(String resName,String defType){  
+	public static String getVersion(){
+		try {
+			Context context = getAppContext();
+			PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			return pi.versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			return "1.0";
+		}
+	}
+
+	public static int getResId(String resName,String defType){
     	Context context = getAppContext();
         return Resources.getIdentifier(resName, defType, context.getPackageName());  
     }  
@@ -136,7 +151,6 @@ public class HyApp extends Application {
         if(r.O instanceof Exception) throw (Exception)r.O;
         return r.O;
 	}
-
 
 	public static void SendMessage(Handler handler, int what, int arg1, int arg2){
 		if(handler == null) return;

@@ -1,19 +1,15 @@
 package com.hc;
 
-import com.dev.Dev;
-import com.hc.dal.WS;
-import com.hc.dal.d;
+import android.os.Bundle;
+
 import com.hc.db.DBLocal;
 
-import hylib.sys.HyApp;
 import hylib.toolkits.DelayTask;
 import hylib.toolkits.EventHandleListener;
 import hylib.toolkits.ExProc;
-import hylib.toolkits.gc;
+import hylib.toolkits.gi;
 import hylib.util.ParamList;
 import hylib.view.ActivityEx;
-import android.content.Intent;
-import android.os.Bundle;
 
 public class ActLoading extends ActivityEx
 {
@@ -35,35 +31,18 @@ public class ActLoading extends ActivityEx
     public void Loading() {
 		try {
 			ptest.testFirst();
-			
-			// 工程初始化
-			pu.Init();
-			
-			// 设备初始化
-	        Dev.Init();
 
-	        // 初始化资源参数
-			MyApp.InitResParams();
-			
-			// web服务调用初始化
-			WS.Init();
-
-			// 本地数据库初始化
-	    	DBLocal.Init();
-			
-			// 如果数据库没有用户数据，首先执行数据同步
-			int usercount = DBLocal.ExecuteIntScalar("select count(*) from user");
-			if(usercount == 0)
-			{
-				$Set(R.id.tv_loading_msg, "初始化数据库...");
-				MainActions.SynAllData(false);
-			}
-			
-	        // 数据表对象初始化
-			d.Init();
-
-	        // 加载系统参数
-			SysData.LoadParams();
+			MyApp.Init(new gi.Action() {
+				public void Execute(){
+					// 如果数据库没有用户数据，首先执行数据同步
+					int usercount = DBLocal.ExecuteIntScalar("select count(*) from user");
+					if(usercount == 0)
+					{
+						$Set(R.id.tv_loading_msg, "初始化数据库...");
+						MainActions.SynAllData(false);
+					}
+				}
+			});
 			
 			ptest.testLoad();
 		} catch (Exception e) {
