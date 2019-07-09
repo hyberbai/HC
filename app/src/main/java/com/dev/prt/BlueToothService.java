@@ -1,17 +1,6 @@
 package com.dev.prt;
 
-import hylib.sys.HyApp;
-import hylib.toolkits.ExProc;
-import hylib.toolkits._D;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Set;
-import java.util.UUID;
-
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
@@ -22,6 +11,15 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Set;
+import java.util.UUID;
+
+import hylib.sys.HyApp;
+import hylib.toolkits._D;
 
 public class BlueToothService {
 	private BluetoothAdapter adapter;
@@ -50,7 +48,7 @@ public class BlueToothService {
 
 	public boolean IsOpen() {
 		synchronized (this) {
-			return adapter.isEnabled();
+			return adapter == null ? false : adapter.isEnabled();
 		}
 	}
 

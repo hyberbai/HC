@@ -62,14 +62,14 @@ public class gv {
 	public static Class<?> GetTypeByName(String typeName)
 	{
 		typeName = typeName.toLowerCase();
-		if (typeName == "s") return String.class;
-		if (typeName == "i" || typeName == "int") return Integer.class;
-		if (typeName == "d" || typeName == "dt" || typeName == "datetime") return Date.class;
-		if (typeName == "b" || typeName == "bool") return Boolean.class;
-		if (typeName == "m" || typeName == "dec") return Double.class;
-		if (typeName == "f") return Float.class;
-		if (typeName == "sint") return short.class;
-		if (typeName == "byte") return Byte.class;
+		if (typeName.equals("s")) return String.class;
+		if (typeName.equals("i") || typeName.equals("int")) return Integer.class;
+		if (typeName.equals("d") || typeName.equals("dt") || typeName.equals("datetime")) return Date.class;
+		if (typeName.equals("b") || typeName.equals("bool")) return Boolean.class;
+		if (typeName.equals("m") || typeName.equals("dec")) return Double.class;
+		if (typeName.equals("f")) return Float.class;
+		if (typeName.equals("sint")) return short.class;
+		if (typeName.equals("byte")) return Byte.class;
 		return null;
 	}
 

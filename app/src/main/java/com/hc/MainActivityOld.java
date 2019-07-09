@@ -20,6 +20,8 @@ import com.hc.mo.sy.ActSy;
 
 import java.util.List;
 
+import hylib.toolkits.type;
+
 //import android.support.v7.internal.widget.ScrollingTabContainerView;
 
 public class MainActivityOld extends ActivityGroup {
@@ -179,10 +181,9 @@ public class MainActivityOld extends ActivityGroup {
 	}
 	
 	public static void ShowSY(String SNo){
-//		actMain.tabHost.setCurrentTabByTag("tabSy");
-//		View v = actMain.tabHost.getCurrentTabView();
-//		ActSy actSy = type.as(actMain.getCurrentActivity(), ActSy.class);
-//		if(actSy == null) return;
-//		actSy.FindSYInfo(SNo);
+		actMain.tabHost.setCurrentTabByTag("tabSy");
+		ActSy actSy = type.as(actMain.getCurrentActivity(), ActSy.class);
+		if(actSy == null) return;
+		actSy.FindSYInfo(SNo);
 	}
 }

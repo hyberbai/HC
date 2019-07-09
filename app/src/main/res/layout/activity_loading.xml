@@ -31,8 +31,8 @@
             android:lineSpacingExtra="3.0dp"
             android:padding="5dp"
             android:text="正在加载..."
-            android:textColor="#ffffffff"
-            android:textSize="15.0sp" />
+            android:textColor="#ff333333"
+            android:textSize="13.6sp" />
 
     </LinearLayout>
 

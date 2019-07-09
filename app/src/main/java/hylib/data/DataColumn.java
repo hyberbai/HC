@@ -22,7 +22,7 @@ public class DataColumn {
 	
 	private int dataType;	//列数据类型
 	
-	private boolean mIsPK;			//是否为主键
+	private boolean mIsPK;		//是否为主键
 	private boolean mIsAutoInc;	//是否自动增量字段
 
 	private SqlDbType mDbType;

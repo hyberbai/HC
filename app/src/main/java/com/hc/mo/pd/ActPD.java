@@ -1,8 +1,42 @@
 package com.hc.mo.pd;
 
+import android.content.DialogInterface;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.dev.DataList;
+import com.dev.HyPrt;
+import com.dev.HyScanner;
+import com.hc.ActBase;
+import com.hc.ActHome;
+import com.hc.MyApp;
+import com.hc.MyApp.WorkState;
+import com.hc.PD;
+import com.hc.R;
+import com.hc.SysData;
+import com.hc.dal.Bill;
+import com.hc.dal.WS;
+import com.hc.dal.d;
+import com.hc.db.DBHelper;
+import com.hc.db.DBLocal;
+import com.hc.g;
+import com.hc.mo.sy.ActSy;
+import com.hc.pu;
+import com.hc.report.PrtField;
+import com.hc.report.PrtFieldList;
+import com.hc.report.RptMini;
+
 import java.util.Date;
 
-import hylib.data.DataColumn;
 import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
 import hylib.data.DataRowState;
@@ -17,18 +51,16 @@ import hylib.edit.DType;
 import hylib.toolkits.EventHandleListener;
 import hylib.toolkits.ExProc;
 import hylib.toolkits.HyColor;
-import hylib.toolkits.SpannableStringHelper;
 import hylib.toolkits.Speech;
 import hylib.toolkits.StringBuilderEx;
 import hylib.toolkits.TempV;
-import hylib.toolkits._D;
 import hylib.toolkits.gc;
 import hylib.toolkits.gcon;
 import hylib.toolkits.gi;
+import hylib.toolkits.gi.CallBack;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
 import hylib.toolkits.type;
-import hylib.toolkits.gi.CallBack;
 import hylib.ui.dialog.HyDialog;
 import hylib.ui.dialog.Msgbox;
 import hylib.ui.dialog.UCCreator;
@@ -38,51 +70,10 @@ import hylib.util.Param;
 import hylib.util.ParamList;
 import hylib.util.TextAlign;
 import hylib.widget.HyEvent;
-import hylib.widget.HyListAdapter;
-import hylib.widget.HyListView;
 import hylib.widget.HyEvent.LvItemClickEventParams;
 import hylib.widget.HyEvent.LvItemLongClickEventParams;
-import android.R.integer;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.sqlite.SQLiteConstraintException;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.graphics.pdf.PdfDocument.Page;
-import android.hardware.Camera.Face;
-import android.os.Bundle;
-import android.renderscript.Element.DataType;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.dev.DataList;
-import com.dev.HyPrt;
-import com.dev.HyScanner;
-import com.hc.ActBase;
-import com.hc.MainActivityOld;
-import com.hc.MyApp;
-import com.hc.MyApp.WorkState;
-import com.hc.ActHome;
-import com.hc.ActMore;
-import com.hc.MainActions;
-import com.hc.PD;
-import com.hc.R;
-import com.hc.SysData;
-import com.hc.g;
-import com.hc.pu;
-import com.hc.dal.Bill;
-import com.hc.dal.WS;
-import com.hc.dal.d;
-import com.hc.db.DBHelper;
-import com.hc.db.DBLocal;
-import com.hc.report.PrtField;
-import com.hc.report.PrtFieldList;
-import com.hc.report.RptMini;
+import hylib.widget.HyListAdapter;
+import hylib.widget.HyListView;
 
 
 public class ActPD extends ActBase {
@@ -112,7 +103,6 @@ public class ActPD extends ActBase {
 	private final static int PAGE_MAIN = 1;
 	private final static int PAGE_DETAIL = 2;
 	
-	private final static int REQ_CODE_BARCODE = 20;
 	private CountStat mStat;
 	
 	private WorkState mWorkState; 
@@ -220,19 +210,23 @@ public class ActPD extends ActBase {
 								public void onClick(DialogInterface dialog, int which) {
 									if(which == 0)
 										try {
+											drDetail.Delete();
 											InvItems.Remove(drDetail);
+											UpdateInvRowState(drInv);
 											if(InvItems.size() == 0 && drInv.getValue("state").equals(gcon.S_EXTRA))
 											{
 												drInv.Delete();
 												SelectInvItem(null);
 											}
 											ActSave();
+											drDetail = null;
 											UpdateListAdapter();
 										} catch (Exception e) {
 											ExProc.Show(e);
 										}
 										
-									if(which == 1) MainActivityOld.ShowSY(SNo);
+									if(which == 1)
+										startActivity(ActSy.class, 0, new Param("SNo", SNo));
 								}
 							}
 					);
@@ -305,7 +299,7 @@ public class ActPD extends ActBase {
 	        		
 	        		String info = gs.JoinArray(new Object[] {
 	        				"库存数量：" + pl.IntValue("qty"),
-	        				"正常：" + pl.IntValue("ok") + "，异况：" + pl.IntValue("wrg") + 
+	        				"正常：" + pl.IntValue("ok") + "，异况：" + pl.IntValue("wrg") +
 	        				"，未盘：" + pl.IntValue("rest") + "，多出：" + pl.IntValue("etr"),
 	            			dr.getStrVal("Note"),
 	            			SysData.isAdmin ? d.getDispUser(dr.getIntVal("OpID")) : null,
@@ -597,14 +591,17 @@ public class ActPD extends ActBase {
 	private void SelectInvItem(DataRow dr) {
 		if(drInv == dr) return;
 		drInv = dr;
-		InvItems = drInv == null ? new DataRowCollection(dtDetail) : 
-				  (DataRowCollection)drInv.getValue("Items");
+		drDetail = null;
+		InvItems = dr == null ? new DataRowCollection(dtDetail) :
+				  (DataRowCollection)dr.getValue("Items");
 		if(mWorkState == WorkState.Normal)
 			listPdAdapter.Select(drInv);
+        drInv = dr;
 	}
 	
 	public void SelectDetailItem(int position){
-		if(InvItems != null) drDetail = InvItems.get(position);	
+		if(InvItems != null) drDetail = InvItems.get(position);
+		listDetailAdapter.SelectAt(position);
 		SelectDetailItem();
 	}
 	
@@ -632,12 +629,8 @@ public class ActPD extends ActBase {
 		
 		@Override
 		public Object Notify(Object sender, Object arg) {
-			ListView lv = sender == listPdAdapter ? lvPD : lvPdDetail;
-			int pos = (Integer)arg;
-            int p0 = lv.getFirstVisiblePosition();
-            int p1 = lv.getLastVisiblePosition();
-            if(pos < p0 || pos > p1)
-            	lv.setSelectionFromTop(pos, lv.getHeight() * 4 / 10);
+			HyListView lv = sender == listPdAdapter ? lvPD : lvPdDetail;
+			lv.setSelection((Integer)arg);
 			return null;
 		}
 	};
@@ -724,7 +717,6 @@ public class ActPD extends ActBase {
 	
 	private void UpdateListAdapter() {
 		if(mWorkState == WorkState.Normal) {
-			drDetail = null;
 			listPdAdapter.Select(drInv);
 		}
 		if(PageID == PAGE_DETAIL)
@@ -740,6 +732,8 @@ public class ActPD extends ActBase {
 				tvTitle.setText("盘点明细 - " +  drInv.getValue("FModel"));
 		} else
 			tvTitle.setText("库存盘点");
+
+		UpdateStat();
 	}
 	
 	public void Clear() {
@@ -767,7 +761,6 @@ public class ActPD extends ActBase {
     	int state0 = gv.IntVal(dr.getValue("State"));
     	if(state0 == state) return;
 		dr.updateValue("State", state);
-		//UpdateListAdapter();
 		mStat.ChangeKey(state0, state);
     }
 
@@ -885,8 +878,6 @@ public class ActPD extends ActBase {
 		String sn = pu.getSNo(code);
     	if(sn.isEmpty() || drPD == null) return;
     	try {
-            drDetail = dtDetail.FindRow("SNo", sn);
-            
         	ParamList pl = GetSnInfo(sn);
         	if(pl == null) pl = new ParamList();
 
@@ -901,18 +892,20 @@ public class ActPD extends ActBase {
     			}
 			}
 
-    		SelectInvItem(FindPdInvRow(FItemID));
-    		if(drInv == null)
+        	DataRow dr = FindPdInvRow(FItemID);
+    		SelectInvItem(dr);
+    		if(dr == null)
     		{
     			//int FItemID = d.getFItemID(sn);
         		if(FItemID <= 0) ExProc.ThrowMsgEx("无法找到当前流水号“" + sn + "”对应产品！");
-    			
+
     			SelectInvItem(CreateInvDataRow(pl));
     			dtInv.addRow(drInv);
     			//ExProc.ThrowMsgEx("库存产品不包含当前流水号！");
     		}
 
-    	//	drDetail = null;
+            drDetail = dtDetail.FindRow("SNo", sn);
+            //	drDetail = null;
     		boolean isNew = drDetail == null;
 
     		if(isNew) {	// 处理不在盘点列表中的流水码
@@ -950,8 +943,11 @@ public class ActPD extends ActBase {
 				Speech.Speak(stext);
 				g.Vibrate(this, 80);
     		}
-    		else
-    			Speech.Speak("已盘点");
+    		else {
+				Speech.Speak("已盘点");
+				if(PageID == PAGE_DETAIL)
+					listDetailAdapter.Select(drDetail);
+			}
 
 			SelectDetailItem();
 			UpdateListAdapter();

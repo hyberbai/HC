@@ -111,6 +111,7 @@ public class DBHelper extends SQLiteOpenHelper
 
 	   // 创建盘点库存表	  
 	   CreateTable(db, "PdInventory", "PDIID INT PRIMARY KEY, PDID INT, FItemID INT, Qty INT, Note VARCHAR(100), state INT");
+	   CreateUniqueIndex(db, "PdInventory", "PDID, FItemID");
 
 	   // 创建盘点信息子表  
 	   CreateTable(db, "PdDetail", "PDDID INT PRIMARY KEY, PDID INT, SNo VARCHAR(15) NOT NULL, IID INT, Note VARCHAR(100), state INT, BatchNo VARCHAR(50), ExpDate DateTime, MfgDate DateTime, ExpDays INT");

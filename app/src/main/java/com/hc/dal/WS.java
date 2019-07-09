@@ -229,7 +229,7 @@ public class WS {
 				new Param( "sp", "zip"),
 			});
 
-    	dt.getColumn("FItemID").setDataType(DType.Int);
+    //	dt.getColumn("FItemID").setDataType(DType.Int);
     	return dt;
 	}
 
