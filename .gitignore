@@ -1,8 +1,11 @@
 *.iml
+*.ser
+*.apk
 .gradle
 .DS_Store
 .externalNativeBuild
 /.idea/workspace.xml
+/androidzxing
 /.idea/libraries
 /local.properties
 /build
