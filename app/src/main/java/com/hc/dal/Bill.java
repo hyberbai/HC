@@ -14,6 +14,8 @@ import hylib.toolkits.ArrayTools;
 import hylib.toolkits.SpannableStringHelper;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
+import hylib.toolkits.type;
+import hylib.ui.dialog.Msgbox;
 import hylib.util.Param;
 import hylib.util.ParamList;
 
@@ -127,13 +129,20 @@ public class Bill {
         return jdNameOf(getExtBTID(BTID, ETID));
     }
 	
-    public static ParamList GetLocalSnInfo(String SNo) throws Exception {
+    public static ParamList GetLocalSnInfo(String SNo, boolean tryConnServer) throws Exception {
     	ParamList pl = new ParamList();
 		DataTable dt = DBLocal.OpenTable("",
 				"select * from Item ic, SN s where ic.FItemID=s.FItemID and FSerialNo=?", SNo
 				);
-		if(dt.RowCount() == 0) return new ParamList();//ExProc.ThrowMsgEx("数据库查无此流水号[" + SNo + "]记录！");
-		
+		if(dt.RowCount() == 0) {
+            if(tryConnServer && dt.isEmpty() && SN.IsCorrectFormat(SNo) && Msgbox.Ask("无法获取流水号，是否远程连接服务器获取数据？"))
+            {
+                //if(!Network.isMobileAvailable()) ExProc.ThrowMsgEx("无可用网络！请检查地址设置是否正确！");
+                return type.as(WS.GetProductTraceInfo(SNo), ParamList.class);
+            }
+		    return new ParamList();//ExProc.ThrowMsgEx("数据库查无此流水号[" + SNo + "]记录！");
+        }
+
 		DataRow dr = dt.getRow(0);
 
         pl.SetValueByDataRowItem(dr, "FItemID");   // 产品编码

@@ -1,61 +1,30 @@
 package com.hc.mo.sy;
 
-import hylib.data.DataRow;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.dev.HyScanner;
+import com.hc.ActBase;
+import com.hc.R;
+import com.hc.dal.Bill;
+import com.hc.dal.WS;
+import com.hc.pu;
+
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import hylib.data.DataRowCollection;
-import hylib.data.DataTable;
 import hylib.toolkits.ExProc;
 import hylib.toolkits.MsgException;
 import hylib.toolkits.type;
 import hylib.ui.dialog.UICreator;
 import hylib.util.ParamList;
-
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import android.R.plurals;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Vibrator;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.dev.HyScanner;
-import com.hc.*;
-import com.hc.R;
-import com.hc.R.id;
-import com.hc.R.layout;
-import com.hc.dal.Bill;
-import com.hc.dal.WS;
-import com.hc.db.DBLocal;
-import com.hc.scanner.TestBaseActivity;
-import com.hc.scanner.Utils;
-import com.hc.tools.ActSearch;
-import com.zltd.decoder.DecoderManager;
-import com.zxing.*;
 
 public class ActSy extends ActBase {
 	private TextView tvProductInfo;
@@ -142,7 +111,7 @@ public class ActSy extends ActBase {
 				if(e instanceof RuntimeException) e = (Exception)((RuntimeException)e).getCause();
 				if(e == null) return;
 				if(!(e instanceof java.net.ConnectException || e instanceof UnknownHostException)) throw e;
-				sy_data = Bill.GetLocalSnInfo(SNo);
+				sy_data = Bill.GetLocalSnInfo(SNo, false);
 				ExProc.Show(e);
 			}
 

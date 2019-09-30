@@ -780,10 +780,11 @@ public class ActPD extends ActBase {
     	ParamList pl;
     	try {
         	pl = WS.IsConnected() ? type.as(WS.GetProductTraceInfo(SNo), ParamList.class) :
-        		Bill.GetLocalSnInfo(SNo);
+        		Bill.GetLocalSnInfo(SNo, true);
 		} catch (Exception e) {
-			if(!ExProc.IsNetException(e)) throw e;
-			pl = Bill.GetLocalSnInfo(SNo);
+			if(ExProc.IsNetException(e))
+			    pl = Bill.GetLocalSnInfo(SNo, false);
+            throw e;
 		}
     	//int FItemID = DBLocal.ExecuteIntScalar("select FItemID from SN where FSerialNo=?",  SNo);
     	return pl == null ? new ParamList() : type.as(pl.get("info"), ParamList.class);

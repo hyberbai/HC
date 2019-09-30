@@ -38,6 +38,9 @@ public class pu {
 	public static void Init() {
 		if(pObj != null) return;
 		pObj = "HC";
+//		boolean a = Network.isNetworkAvailable();
+//		boolean a1 = Network.isWiFiAvailable();
+//		boolean a2 = Network.isMobileAvailable();
 		pSetting.Init();
 		LoadActionList();
 	}

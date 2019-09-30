@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 ext.appName = "HC"
-ext.appVersionName = "1.07"
+ext.appVersionName = "1.08"
 ext.appReleaseDir = "../../"
 
 
