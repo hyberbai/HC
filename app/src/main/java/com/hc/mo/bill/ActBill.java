@@ -859,7 +859,7 @@ public abstract class ActBill extends ActBase {
         	DataRow dr = Bill.GetSNInfo(sn);
         	ParamList pl = null;
 	    	if(dr == null) {
-	    		pl = pu.GetProdcutBySN(code);
+	    		pl = pu.GetProductBySN(code);
 	    		if(pl == null) ExProc.ThrowMsgEx(String.format("数据库没有该流水号[%s]的记录！", sn));
 	    	}
 	    	else

@@ -20,6 +20,7 @@ import hylib.util.ParamList;
 //工程函数类
 public class pu {
 	public static String DEFAULT_SERVER_ADDR = "218.25.17.250:2603";
+//	public static String DEFAULT_SERVER_ADDR = "192.168.1.222:2603";
 
 	public static String DEFAULT_IP_PORT = "2603";
 	public static String TEMP_PATH = "/sdcard/";
@@ -139,45 +140,59 @@ public class pu {
         ActionList.Add("登录", "Login");
         ActionList.Add("关闭", "Close");
     }
-    
-    // 解析金蝶流水号 
-    public static ParamList ParseJDSN(String code)
-    {
-    	ParamList pl = new ParamList();
-        code = code.trim();
 
-        if (code.length() > 20)
-        {
-            String[] ss = code.replace("\r", "").split("\n");
-            for(String s : ss)
-            {
-                if(s.length() == 0) continue;
-                String[] ss1 = s.split("：");
-                if (ss1.length > 1)
-                {
-                    String key = null;
-                    String v = ss1[1];
-                    if (ss1[0].equals("厂家")) key = "Manuf";
-                    if (ss1[0].equals("规格")) key = "Spec";
-                    if (ss1[0].equals("批号")) key = "BatchNo";
-                    if (ss1[0].equals("序号")) key = "PN";
-                    if (ss1[0].equals("生产日期")) { key = "MfgDate"; v = gs.NormalizeDate(v, false); }
-                    if (ss1[0].equals("有效期")) { key = "ExpDate"; v = gs.NormalizeDate(v, true); }
-                    if(key != null) pl.SetValue(key, v);
-                } else {
-                    if (gs.Left(ss1[0], 3).equalsIgnoreCase("NO.")) 
-                    	pl.SetValue("SNo", ss1[0].substring(3)); 
-                    else
-                    	pl.SetValue("PName", ss1[0]);
-                }
-            }
-            
-            return isValidSNo(pl.SValue("SNo")) ? pl : null;
-        }
-        return null;
-    }
+	public static String PickSNFromLine(String sLine)
+	{
+		return  getSNo(sLine);
+
+//		var matches = Pattern.compile("^([A-Zo]{1,4})\\.([\\d]{6,12})$").matcher(sLine);
+//		if (matches. == 0 || matches[0].Groups.Count != 3) return null;
+//		SPNo = matches[0].Groups[1].Value;
+//		if (gs.SameText(SPNo, "NO")) SPNo = "";
+//		String sn = matches[0].Groups[2].Value;
+//		return sn.Length == 6 || sn.Length == 12 ? sn : null;
+	}
+
+    // 解析金蝶流水号
+	public static ParamList ParseJDSN(String code)
+	{
+		ParamList result = new ParamList();
+		code = code.trim();
+
+		if (code.length() > 20)
+		{
+			String[] ss = code.split("\\r|\\n");
+			for (String s : ss)
+			{
+				if(s.length() == 0) continue;
+				String[] ss1 = s.split("：");
+				if (ss1.length > 1)
+				{
+					String key = null;
+					String v = ss1[1];
+					if (ss1[0] == "厂家") key = "Manuf";
+					if (ss1[0] == "规格") key = "Spec";
+					if (ss1[0] == "批号") key = "BatchNo";
+					if (ss1[0] == "序号") key = "PN";
+					if (ss1[0] == "生产日期") { key = "MfgDate"; v = gs.NormalizeDate(v, false); }
+					if (ss1[0] == "有效期") { key = "ExpDate"; v = gs.NormalizeDate(v, true); }
+					if (key != null) result.SetValue(key, v);
+				} else {
+					String SN = PickSNFromLine(ss1[0]);
+					if (!gv.IsEmpty(SN))
+						result.SetValue("SN", SN);
+					else
+						result.SetValue("PName", ss1[0]);
+				}
+			}
+		}
+		else
+			result.SetValue("SN",  getSNo(code));
+
+		return result;
+	}
     
-    public static ParamList GetProdcutBySN(String code) throws Exception {
+    public static ParamList GetProductBySN(String code) throws Exception {
 		ParamList pl = ParseJDSN(code);
 		if(pl == null) return null;
 		int FItemID = -1;
@@ -186,9 +201,9 @@ public class pu {
 		{
 			FItemID = dr.getIntVal("FItemID");
 			dr.putParamList(pl);
-//			pl.SetValue("FUnit", dr.getValue("FUnit"));
-//			pl.SetValue("FItemID", FItemID);
-//			pl.SetValue("Cls", dr.getValue("Cls"));
+			pl.SetValue("FUnit", dr.getValue("FUnit"));
+			pl.SetValue("FItemID", FItemID);
+			pl.SetValue("Cls", dr.getValue("Cls"));
 		}
 		pl.RenKeys("SNo FSerialNo, PName FName, Spec FModel, BatchNo FBatchNo, MfgDate FKFDate, ExpDate FPeriodDate");
 		return pl;

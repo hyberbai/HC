@@ -33,6 +33,18 @@ public class ArrayTools {
         return result;
     }
 
+
+    public static <T> T[] Merge(T[] A, T[] B)
+    {
+        if (A == null) return B;
+        if (B == null) return A;
+
+        T[] result = newGenicArray(A, A.length + B.length);
+        System.arraycopy(A, 0, result, 0, A.length);
+        System.arraycopy(B, 0, result, A.length, B.length);
+        return result;
+    }
+
     public static <T> void Init(T[] arr, int size, T initvalue)
     {
         for (int i = 0; i < size; i++) arr[i] = initvalue;

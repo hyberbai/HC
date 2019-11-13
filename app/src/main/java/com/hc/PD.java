@@ -1,6 +1,6 @@
 package com.hc;
 
-import java.util.Iterator;
+import com.hc.db.DBLocal;
 
 import hylib.data.DataRow;
 import hylib.data.DataRowCollection;
@@ -8,9 +8,6 @@ import hylib.toolkits.ExProc;
 import hylib.toolkits.gcon;
 import hylib.toolkits.gi;
 import hylib.toolkits.gv;
-import android.R.integer;
-
-import com.hc.db.DBLocal;
 
 public class PD {
 
@@ -52,7 +49,8 @@ public class PD {
 		public int getExtraQty() { return Qtys[EXTRA]; }
 		public int getPDQty() { return Qtys[PD]; }
 		public int getRestQty()  { return Qtys[REST]; }
-		
+
+		public int getPdExtraQty()  { return Qtys[PD] + Qtys[EXTRA]; }
 
 		public void setQty(int qty) { Qtys[QTY] = qty; }
 		public void setOkQty(int qty)  { Qtys[OK] = qty; }
@@ -73,6 +71,7 @@ public class PD {
 
 	public static StatQtyInfo StatRowQty(DataRow dr)
 	{
+		if(dr == null) return null;
 		DataRowCollection rows = dr.getValue(DataRowCollection.class, "Items");
 		StatQtyInfo sq = new StatQtyInfo();
 		sq.setQty(dr.getIntVal("Qty"));

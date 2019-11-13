@@ -1,42 +1,31 @@
 package com.hc.mo.pd;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.text.Html;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.hc.PD.StatQtyInfo;
+import com.hc.R;
+import com.hc.pconst;
+
+import java.util.List;
+
 import hylib.data.DataRow;
-import hylib.data.DataRowCollection;
-import hylib.toolkits.HyColor;
-import hylib.toolkits._D;
 import hylib.toolkits.gcon;
 import hylib.toolkits.gv;
 import hylib.toolkits.type;
 import hylib.ui.dialog.ListItemViewInfo;
 import hylib.widget.HyListAdapter;
 
-import java.util.List;
-
-import com.hc.PD;
-import com.hc.R;
-import com.hc.pconst;
-import com.hc.PD.StatQtyInfo;
-import com.hc.R.drawable;
-import com.hc.R.id;
-import com.hc.R.layout;
-
-import android.R.integer;
-import android.content.Context;
-import android.graphics.Color;
-import android.text.Html;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 // 盘点列表
 public class ListPd2Adapter extends HyListAdapter {
 
 	public class PDListItemViewInfo extends ListItemViewInfo {
 		public TextView tvInfo;
-		public Button btnNote;
-		public Button btnDelete;
 		public ImageView ivState;	// 盘点状态图标
 		public ImageView ivMore;	
 
@@ -54,6 +43,7 @@ public class ListPd2Adapter extends HyListAdapter {
 		PDListItemViewInfo vi  = new PDListItemViewInfo(view);
 		vi.tvInfo = (TextView) vi.getView(R.id.item_info);
 		vi.ivState = (ImageView) vi.getView(R.id.iv_state);
+		vi.ivMore = (ImageView) vi.getView(R.id.iv_more);
 		return vi;
 	}
 	
@@ -82,13 +72,12 @@ public class ListPd2Adapter extends HyListAdapter {
 		StatQtyInfo pq = dr.$("Stat");
 		
 		String info = String.format(
-						"%s\n" +
-						"规格：%s\n" +
+						"%s %s\n" +
 						"库存：%d" + "，" +
 						"正常：" + fsOK + "%d" + fe + "，" +
 						"未盘：" + fsUncheck + "%d" + fe,
 						
-						dr.getValue("FName"), 
+						dr.getValue("SName"),
 						dr.getValue("FModel"),
 						pq.getQty(),
 						pq.getOkQty(),
@@ -97,7 +86,6 @@ public class ListPd2Adapter extends HyListAdapter {
 
 		if(pq.getWrongQty() > 0) info += "，" + fsWrong + "异况：" + pq.getWrongQty() + fe;
 		if(pq.getExtraQty() > 0) info += "，" + fsNew + "多出：" + pq.getExtraQty() + fe;
-
 
 		clBG = Color.WHITE;
 		DrawBG(vInfo, convertView, clBG);
@@ -111,7 +99,8 @@ public class ListPd2Adapter extends HyListAdapter {
 		
 		info = info.replace("\n", "<br>");
 		//vi.tvInfo.setText(info);
-		vi.tvInfo.setText(Html.fromHtml(info));    
+		vi.tvInfo.setText(Html.fromHtml(info));
+		vi.ivMore.setVisibility(pq.getPDQty() + pq.getExtraQty() > 0 ? View.VISIBLE : View.GONE);
 	}
 }
 

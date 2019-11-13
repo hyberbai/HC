@@ -16,156 +16,156 @@ import hylib.util.SimpleLex;
 
 /**
  * @author Administrator
- *
  */
+
 /**
  * @author Administrator
  *
  */
 public final class DataTable {
 
-	private DataRowCollection rows; // 用于保存DataRow的集合对象
-	private DataColumnCollection columns; // 用于保存DataColumn的对象
-	private String tableName; // 表名
-	private boolean readOnly = false;
-	private int nextRowIndex = 0;
-	private DataExpression dataExpression;
-	private Object tag;
+    private DataRowCollection rows; // 用于保存DataRow的集合对象
+    private DataColumnCollection columns; // 用于保存DataColumn的对象
+    private String tableName; // 表名
+    private boolean readOnly = false;
+    private int nextRowIndex = 0;
+    private DataExpression dataExpression;
+    private Object tag;
 
-	public DataTable() {
-		this.columns = new DataColumnCollection();
-		this.rows = new DataRowCollection(this);
-		dataExpression = new DataExpression(this);
-	}
+    public DataTable() {
+        this.columns = new DataColumnCollection();
+        this.rows = new DataRowCollection(this);
+        dataExpression = new DataExpression(this);
+    }
 
-	public DataColumn getPKColumn() {
-		return columns.getPKColumn();
-	}
-	
-	public DataTable(String dataTableName) {
-		this();
-		this.tableName = dataTableName;
-	}
-	
-	public DataTable(String dataTableName, String config) {
-		this(dataTableName);
-		this.columns.CreateTableColumns(config);
-	}
-	
-	public DataTable(String dataTableName, String config, DataRowCollection rows) {
-		this(dataTableName, config);
-		this.rows = rows;
-	}
-	
-	public DataTable(String dataTableName, String config, Object[][] rowValues) {
-		this(dataTableName, config);
-		this.rows.SetRowValues(rowValues);
-	}
-	
-	public DataTable(String dataTableName, String config, String[] rowTexts) {
-		this(dataTableName, config);
-		for (String s : rowTexts) {
-			String[] rowValues = gs.Split(s);
-			addRow((Object[]) rowValues);
-		}
-	}
+    public DataColumn getPKColumn() {
+        return columns.getPKColumn();
+    }
 
-	public DataTable Clone(){
-		DataTable tab = new DataTable();
-		for (DataColumn dc : columns)
-			tab.addColumn(dc);
-		return tab;
-	}
-	
-	public DataTable Copy(String sFieldNames) throws Exception {
-		String[] ss = sFieldNames.split(",");
-		DataTable tab = new DataTable();
-		
-		int index = 0;
-		int[] cis = new int[ColumnCount()];
-		for (String s : ss)
-		{
-			DataColumn dc = getColumn(s.trim());
-			if(dc != null) {
-				tab.addColumn(dc);
-				cis[index++] = dc.getColumnIndex();
-			}
-		}
-		
-		for(DataRow dr: rows) {
-			Object[] items = new Object[tab.ColumnCount()];
-			for (int i = 0; i < tab.ColumnCount(); i++) {
-				items[i] = dr.getValue(cis[i]);
-			}
-			tab.addRow(items);
-		}
-		return tab;
-	}
-	
-	public DataTable Copy() {
-		DataTable tab = this.Clone();
-		for(DataRow dr: rows)
-			tab.addRow(dr.ItemArray);
-		return tab;
-	}
-	
-	public int getTotalCount() {
-		return rows.size();
-	}
+    public DataTable(String dataTableName) {
+        this();
+        this.tableName = dataTableName;
+    }
 
-	public boolean isReadOnly() {
-		return this.readOnly;
-	}
+    public DataTable(String dataTableName, String config) {
+        this(dataTableName);
+        this.columns.CreateTableColumns(config);
+    }
 
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
+    public DataTable(String dataTableName, String config, DataRowCollection rows) {
+        this(dataTableName, config);
+        this.rows = rows;
+    }
 
-	private boolean mLockState;
-	public void LockState() {
-		mLockState = true;
-	}
-	
-	public void UnlockState() {
-		mLockState = false;
-	}
-	
-	public boolean IsStateLocked() {
-		return mLockState;
-	}
-	
-	/**
-	 * 功能描述： 返回表名
-	 */
-	public String getTableName() {
-		return this.tableName;
-	}
+    public DataTable(String dataTableName, String config, Object[][] rowValues) {
+        this(dataTableName, config);
+        this.rows.SetRowValues(rowValues);
+    }
 
-	/**
-	 * 功能描述： 设置表名
-	 */
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+    public DataTable(String dataTableName, String config, String[] rowTexts) {
+        this(dataTableName, config);
+        for (String s : rowTexts) {
+            String[] rowValues = gs.Split(s);
+            addRow((Object[]) rowValues);
+        }
+    }
 
-	/**
-	 * 功能描述： 返回该表引用的封装类
-	 */
-	public DataRowCollection getRows() {
-		return this.rows;
-	}
+    public DataTable Clone() {
+        DataTable tab = new DataTable();
+        for (DataColumn dc : columns)
+            tab.addColumn(dc);
+        return tab;
+    }
 
-	public DataRow[] getChanges() {
-		return Select(DataRowState.Changed).toArray(new DataRow[0]);
-	}
-	
-	public DataRow getRow(int rowIndex) {
-		return rows.get(rowIndex);
-	}
-	
-	public DataRow firstRow() {
-		return rows.size() > 0 ? rows.get(0) : null;
-	}
+    public DataTable Copy(String sFieldNames) throws Exception {
+        String[] ss = sFieldNames.split(",");
+        DataTable tab = new DataTable();
+
+        int index = 0;
+        int[] cis = new int[ColumnCount()];
+        for (String s : ss) {
+            DataColumn dc = getColumn(s.trim());
+            if (dc != null) {
+                tab.addColumn(dc);
+                cis[index++] = dc.getColumnIndex();
+            }
+        }
+
+        for (DataRow dr : rows) {
+            Object[] items = new Object[tab.ColumnCount()];
+            for (int i = 0; i < tab.ColumnCount(); i++) {
+                items[i] = dr.getValue(cis[i]);
+            }
+            tab.addRow(items);
+        }
+        return tab;
+    }
+
+    public DataTable Copy() {
+        DataTable tab = this.Clone();
+        for (DataRow dr : rows)
+            tab.addRow(dr.ItemArray);
+        return tab;
+    }
+
+    public int getTotalCount() {
+        return rows.size();
+    }
+
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    private boolean mLockState;
+
+    public void LockState() {
+        mLockState = true;
+    }
+
+    public void UnlockState() {
+        mLockState = false;
+    }
+
+    public boolean IsStateLocked() {
+        return mLockState;
+    }
+
+    /**
+     * 功能描述： 返回表名
+     */
+    public String getTableName() {
+        return this.tableName;
+    }
+
+    /**
+     * 功能描述： 设置表名
+     */
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    /**
+     * 功能描述： 返回该表引用的封装类
+     */
+    public DataRowCollection getRows() {
+        return this.rows;
+    }
+
+    public DataRow[] getChanges() {
+        return Select(DataRowState.Changed).toArray(new DataRow[0]);
+    }
+
+    public DataRow getRow(int rowIndex) {
+        return rows.get(rowIndex);
+    }
+
+    public DataRow firstRow() {
+        return rows.size() > 0 ? rows.get(0) : null;
+    }
 
 //	public DataRow firstRow(String cond) {
 //
@@ -176,362 +176,364 @@ public final class DataTable {
 //            }
 //        });
 //	}
-	
-	public DataRow lastRow() {
-		return rows.size() > 0 ? rows.get(rows.size() - 1) : null;
-	}
-	
-	public int getRowCount() {
-		return this.rows.size();
-	}
-	
-	public boolean isEmpty() {
-		return rows.size() == 0;
-	}
 
-	public DataRow Row(int rowIndex) {
-		return rows.get(rowIndex);
-	}
-	
-	public String[] getTextRows(String fieldName) {
-		return rows.getTextRows(fieldName);
-	}
+    public DataRow lastRow() {
+        return rows.size() > 0 ? rows.get(rows.size() - 1) : null;
+    }
 
-	public int RowCount() {
-		return rows.size();
-	}
+    public int getRowCount() {
+        return this.rows.size();
+    }
 
-	public DataColumnCollection getColumns() {
-		return this.columns;
-	}
+    public boolean isEmpty() {
+        return rows.size() == 0;
+    }
 
-	public DataColumn getColumn(String colName) {
-		return columns.get(colName);
-	}
+    public DataRow Row(int rowIndex) {
+        return rows.get(rowIndex);
+    }
 
-	public DataColumn getColumn(int colIndex) {
-		return columns.get(colIndex);
-	}
+    public String[] getTextRows(String fieldName) {
+        return rows.getTextRows(fieldName);
+    }
 
-	public void setPKColumn(String colName) {
-		getColumn(colName).setPK(true);
-	}	
-	
-	public boolean containsCol(String columnName) {
-		return columns.containsCol(columnName);
-	}
-	
-	public DataColumnCollection getNoPkColumns() {
-		return columns.getNoPkColumns();
-	}
+    public int RowCount() {
+        return rows.size();
+    }
 
-	public int getColumnDataType(int colIndex) {
-		return columns.getDataType(colIndex);
-	}
+    public DataColumnCollection getColumns() {
+        return this.columns;
+    }
 
-	public int getColumnDataType(String colName) {
-		return columns.getDataType(colName);
-	}
+    public DataColumn getColumn(String colName) {
+        return columns.get(colName);
+    }
 
-	public int ColumnCount() {
-		return columns.size();
-	}
+    public DataColumn getColumn(int colIndex) {
+        return columns.get(colIndex);
+    }
 
-	/**
-	 * 功能描述： 获取指定行指定列的数据
-	 */
-	public Object getValue(int row, String colName) {
-		return this.rows.get(row).getValue(colName);
-	}
+    public void setPKColumn(String colName) {
+        getColumn(colName).setPK(true);
+    }
 
-	public Object getValue(int row, int col) {
-		return this.rows.get(row).getValue(col);
-	}
+    public boolean containsCol(String columnName) {
+        return columns.containsCol(columnName);
+    }
 
-	public int getMaxID() {
-		int max = 0;
-		int pkColIndex = getPKColumn().getColumnIndex();
-		for (DataRow dr : rows) {
-			int id = dr.getIntVal(pkColIndex);
-			if(max < id) max = id;
-		}
-		return max;
-	}
-	
-	public int getMinID() {
-		int min = Integer.MAX_VALUE;
-		int pkColIndex = getPKColumn().getColumnIndex();
-		for (DataRow dr : rows) {
-			int id = dr.getIntVal(pkColIndex);
-			if(min > id) min = id;
-		}
-		return min == Integer.MAX_VALUE ? 0 : min;
-	}
-	
-	public DataRow createRow() {
-		DataRow dr = new DataRow(this);
-		nextRowIndex = nextRowIndex < rows.size() ? rows.size() : nextRowIndex;
-		dr.setRowIndex(nextRowIndex++);
-		return dr;
-	}
-	
-	/**
-	 * 功能描述： 为该表数据新建一行
-	 */
-	public DataRow newRow() {
-		DataRow dr = createRow();
-		dr.setState(DataRowState.Added);
-		return dr;
-	}
-	
-	public DataRow addRow() {
-		DataRow dr = createRow();
-		addRow(dr);
-		return dr;
-	}
-	
-	public DataRow addRow(Object... values) {
-		DataRow dr = createRow();
-		dr.setValues(values);
-		addRow(dr);
-		return dr;
-	}
-	
-	public DataRow addNewRow(Object... values) {
-		DataRow dr = addRow(values);
-		dr.setState(DataRowState.Added);
-		return dr;
-	}
+    public DataColumnCollection getNoPkColumns() {
+        return columns.getNoPkColumns();
+    }
 
-	public void addRow(DataRow row) {
-		if (row.getRowIndex() > this.rows.size())
-			row.setRowIndex(this.rows.size());
-		this.rows.add(row);
-	}
+    public int getColumnDataType(int colIndex) {
+        return columns.getDataType(colIndex);
+    }
 
-	public void addRow(int index, DataRow row) {
-		if (row.getRowIndex() > this.rows.size())
-			row.setRowIndex(this.rows.size());
-		this.rows.add(index, row);
-	}
+    public int getColumnDataType(String colName) {
+        return columns.getDataType(colName);
+    }
 
-	public void addRow(int index, Object[] item) {
-		DataRow dr = newRow();
-		dr.ItemArray = item;
-		this.rows.add(index, dr);
-	}
+    public int ColumnCount() {
+        return columns.size();
+    }
 
-	public boolean addNewRow(DataRow row) {
-		row.setState(DataRowState.Added);;
-		return this.rows.add(row);
-	}
+    /**
+     * 功能描述： 获取指定行指定列的数据
+     */
+    public Object getValue(int row, String colName) {
+        return this.rows.get(row).getValue(colName);
+    }
 
-	public void DeleteAll() {
-		rows.DeleteAll();
-	}
-	
-	public void setValue(int row, int col, Object value) {
-		this.rows.get(row).setValue(col, value);
-	}
+    public Object getValue(int row, int col) {
+        return this.rows.get(row).getValue(col);
+    }
 
-	public void setValue(int row, String colName, Object value) {
-		this.rows.get(row).setValue(colName, value);
-	}
+    public int getMaxID() {
+        int max = 0;
+        int pkColIndex = getPKColumn().getColumnIndex();
+        for (DataRow dr : rows) {
+            int id = dr.getIntVal(pkColIndex);
+            if (max < id) max = id;
+        }
+        return max;
+    }
 
-	public void setValues(String colName, Object value) {
-		int col = columns.getColumnsIndex(colName);
-		for (DataRow dr : rows) dr.setValue(col, value);
-	}
+    public int getMinID() {
+        int min = Integer.MAX_VALUE;
+        int pkColIndex = getPKColumn().getColumnIndex();
+        for (DataRow dr : rows) {
+            int id = dr.getIntVal(pkColIndex);
+            if (min > id) min = id;
+        }
+        return min == Integer.MAX_VALUE ? 0 : min;
+    }
 
-	public void setTag(Object tag) {
-		this.tag = tag;
-	}
+    public DataRow createRow() {
+        DataRow dr = new DataRow(this);
+        nextRowIndex = nextRowIndex < rows.size() ? rows.size() : nextRowIndex;
+        dr.setRowIndex(nextRowIndex++);
+        return dr;
+    }
 
-	public Object getTag() {
-		return tag;
-	}
+    /**
+     * 功能描述： 为该表数据新建一行
+     */
+    public DataRow newRow() {
+        DataRow dr = createRow();
+        dr.setState(DataRowState.Added);
+        return dr;
+    }
 
-	public DataColumn addColumn(String columnName, int dataType) {
-		DataColumn dc = this.columns.addColumn(columnName, dataType);
-		if(dc != null) dc.setTable(this);
-		return dc;
-	}
+    public DataRow addRow() {
+        DataRow dr = createRow();
+        addRow(dr);
+        return dr;
+    }
 
-	public void addColumn(DataColumn dc) {
-		this.columns.add(dc);
-		dc.setTable(this);
-	}
+    public DataRow addRow(Object... values) {
+        DataRow dr = createRow();
+        dr.setValues(values);
+        addRow(dr);
+        return dr;
+    }
 
-	/**
-	 * 功能描述： 返回符合过滤条件的数据行集合，并返回
-	 */
-	public DataRow[] Select(String filterString) {
-		List<DataRow> rows = new ArrayList<DataRow>();
-		if (!gv.IsEmpty(filterString)) {
-			for (Object row : this.rows) {
-				DataRow currentRow = (DataRow) row;
-				if ((Boolean) dataExpression.Compute(filterString, currentRow.ItemArray)) {
-					rows.add(currentRow);
-				}
-			}
-		} else 
-			rows = this.rows;
-		return rows.toArray(new DataRow[0]);
-	}
+    public DataRow addNewRow(Object... values) {
+        DataRow dr = addRow(values);
+        dr.setState(DataRowState.Added);
+        return dr;
+    }
+
+    public void addRow(DataRow row) {
+        if (row.getRowIndex() > this.rows.size())
+            row.setRowIndex(this.rows.size());
+        this.rows.add(row);
+    }
+
+    public void addRow(int index, DataRow row) {
+        if (row.getRowIndex() > this.rows.size())
+            row.setRowIndex(this.rows.size());
+        this.rows.add(index, row);
+    }
+
+    public void addRow(int index, Object[] item) {
+        DataRow dr = newRow();
+        dr.ItemArray = item;
+        this.rows.add(index, dr);
+    }
+
+    public boolean addNewRow(DataRow row) {
+        row.setState(DataRowState.Added);
+        ;
+        return this.rows.add(row);
+    }
+
+    public void DeleteAll() {
+        rows.DeleteAll();
+    }
+
+    public void setValue(int row, int col, Object value) {
+        this.rows.get(row).setValue(col, value);
+    }
+
+    public void setValue(int row, String colName, Object value) {
+        this.rows.get(row).setValue(colName, value);
+    }
+
+    public void setValues(String colName, Object value) {
+        int col = columns.getColumnsIndex(colName);
+        for (DataRow dr : rows) dr.setValue(col, value);
+    }
+
+    public void setTag(Object tag) {
+        this.tag = tag;
+    }
+
+    public Object getTag() {
+        return tag;
+    }
+
+    public DataColumn addColumn(String columnName, int dataType) {
+        DataColumn dc = this.columns.addColumn(columnName, dataType);
+        if (dc != null) dc.setTable(this);
+        return dc;
+    }
+
+    public void addColumn(DataColumn dc) {
+        this.columns.add(dc);
+        dc.setTable(this);
+    }
+
+    /**
+     * 功能描述： 返回符合过滤条件的数据行集合，并返回
+     */
+    public DataRow[] Select(String filterString) {
+        List<DataRow> rows = new ArrayList<DataRow>();
+        if (!gv.IsEmpty(filterString)) {
+            for (Object row : this.rows) {
+                DataRow currentRow = (DataRow) row;
+                if ((Boolean) dataExpression.Compute(filterString, currentRow.ItemArray)) {
+                    rows.add(currentRow);
+                }
+            }
+        } else
+            rows = this.rows;
+        return rows.toArray(new DataRow[0]);
+    }
 
     public DataRow FindRow(String columnName, Object value) {
-    	int col = columns.get(columnName).getColumnIndex();
-    	for (DataRow dr : rows)
-			if(gv.Same(dr.getValue(col), value)) return dr;
+        int col = columns.get(columnName).getColumnIndex();
+        for (DataRow dr : rows)
+            if (gv.Same(dr.getValue(col), value)) return dr;
         return null;
     }
-    
+
     public DataRowCollection SelectRows(String columnName, Object value) {
-    	DataRowCollection rs = new DataRowCollection(this);
-    	int col = columns.get(columnName).getColumnIndex();
-    	for (DataRow dr : rows)
-			if(gv.Same(dr.getValue(col), value))
-				rs.add(dr);
+        DataRowCollection rs = new DataRowCollection(this);
+        int col = columns.get(columnName).getColumnIndex();
+        for (DataRow dr : rows)
+            if (gv.Same(dr.getValue(col), value))
+                rs.add(dr);
         return rs;
     }
-    
+
     public DataRowCollection SelectRows(String columnName, Param... conds) {
-    	DataRowCollection rs = new DataRowCollection(this);
-    	for (DataRow dr : rows) {
-    		boolean match = true;
-    		for (Param cond : conds) {
-    			if(!gv.Same(dr.getValue(cond.Name), cond.Value)) {
-    				match = false;
-    				break;
-    			}
-			}
-			if(match) rs.add(dr);
-    	}
+        DataRowCollection rs = new DataRowCollection(this);
+        for (DataRow dr : rows) {
+            boolean match = true;
+            for (Param cond : conds) {
+                if (!gv.Same(dr.getValue(cond.Name), cond.Value)) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) rs.add(dr);
+        }
         return rs;
     }
 
     public DataRowCollection SelectRows(gi.IFunc1<DataRow, Boolean> matchFunc) {
-    	DataRowCollection rs = new DataRowCollection(this);
-    	for (DataRow dr : rows)
-			if(matchFunc.Call(dr)) rs.add(dr);
+        DataRowCollection rs = new DataRowCollection(this);
+        for (DataRow dr : rows)
+            if (matchFunc.Call(dr)) rs.add(dr);
         return rs;
     }
-    
+
     public void Sort(String sortItems) {
-    	rows.Sort(sortItems);
-	}
-    
-	/**
-	 * 功能描述： 对当前表进行查询 过滤，并返回指定列集合拼装的DataTable对象
-	 */
-	public DataTable Select(String filterString, String[] columns, boolean distinct)
-			throws Exception {
-		DataTable result = new DataTable();
-		DataRow[] rows = Select(filterString);
-		// 构造表结构
-		for (String c : columns) {
-			DataColumn dc = this.columns.get(c);
-			DataColumn newDc = new DataColumn(dc.getColumnName(), dc.getDataType());
-			newDc.setCaptionName(dc.getCaptionName());
-			result.columns.add(newDc);
-		}
-		// 填充数据
-		for (DataRow r : rows) {
-			DataRow newRow = result.createRow();
-			newRow.copyFrom(r);
-			result.addRow(newRow);
-		}
-		return result;
-	}
+        rows.Sort(sortItems);
+    }
 
-	public DataTable Select(String tableName, String selectField, String filterString, String groupField) {
-		DataTable result = new DataTable();
-		//
-		return result;
-	}
+    /**
+     * 功能描述： 对当前表进行查询 过滤，并返回指定列集合拼装的DataTable对象
+     */
+    public DataTable Select(String filterString, String[] columns, boolean distinct)
+            throws Exception {
+        DataTable result = new DataTable();
+        DataRow[] rows = Select(filterString);
+        // 构造表结构
+        for (String c : columns) {
+            DataColumn dc = this.columns.get(c);
+            DataColumn newDc = new DataColumn(dc.getColumnName(), dc.getDataType());
+            newDc.setCaptionName(dc.getCaptionName());
+            result.columns.add(newDc);
+        }
+        // 填充数据
+        for (DataRow r : rows) {
+            DataRow newRow = result.createRow();
+            newRow.copyFrom(r);
+            result.addRow(newRow);
+        }
+        return result;
+    }
 
-	/**
-	 * 功能描述： 根据指定表达式对符合过滤条件的数据进行计算
-	 * 
-	 * @author: James Cheung
-	 * @version: 2.0
-	 */
-	public Object Compute(String expression, String filter) {
-		return dataExpression.Compute(expression, Select(filter));
-	}
+    public DataTable Select(String tableName, String selectField, String filterString, String groupField) {
+        DataTable result = new DataTable();
+        //
+        return result;
+    }
 
-	// public Object max(String columns, String filter) {
-	// return null;
-	// }
-	//
-	// public Object min(String columns, String filter) {
-	// return null;
-	// }
-	//
-	// public Object avg(String columns, String filter) {
-	// return null;
-	// }
-	//
-	// public Object max(String columns, String filter, String groupBy) {
-	// return null;
-	// }
-	//
-	// public Object min(String columns, String filter, String groupBy) {
-	// return null;
-	// }
-	//
-	// public Object avg(String columns, String filter, String groupBy) {
-	// return null;
-	// }
-	
-	public DataColumn Column(int colIndex) {
-		return columns.get(colIndex);
-	}
+    /**
+     * 功能描述： 根据指定表达式对符合过滤条件的数据进行计算
+     *
+     * @author: James Cheung
+     * @version: 2.0
+     */
+    public Object Compute(String expression, String filter) {
+        return dataExpression.Compute(expression, Select(filter));
+    }
+
+    // public Object max(String columns, String filter) {
+    // return null;
+    // }
+    //
+    // public Object min(String columns, String filter) {
+    // return null;
+    // }
+    //
+    // public Object avg(String columns, String filter) {
+    // return null;
+    // }
+    //
+    // public Object max(String columns, String filter, String groupBy) {
+    // return null;
+    // }
+    //
+    // public Object min(String columns, String filter, String groupBy) {
+    // return null;
+    // }
+    //
+    // public Object avg(String columns, String filter, String groupBy) {
+    // return null;
+    // }
+
+    public DataColumn Column(int colIndex) {
+        return columns.get(colIndex);
+    }
 
     // Hson符号提取器
-    public static class TableLex extends SimpleLex
-    {
-        public TableLex(String Text)
-        {
+    public static class TableLex extends SimpleLex {
+        public TableLex(String Text) {
             super(Text);
         }
 
         @Override
-        public int GetCharToken(char c)
-        {
+        public int GetCharToken(char c) {
             return c == ',' ? LT_ItemSplitChr :
                     c == ';' ? LT_ItemSplitChr :
-                    c == '|' ? LT_ItemSplitChr :
+                            c == '|' ? LT_ItemSplitChr :
 
-                    c == '\"' ? LT_String :
-                    c == '\'' ? LT_String :
-                    	
-                    c == '\r' ? LT_LineSplitChr :
-                    c == '\n' ? LT_LineSplitChr :
+                                    c == '\"' ? LT_String :
+                                            c == '\'' ? LT_String :
 
-                    c == '{' ? LT_Bracket1 :
-                    c == '[' ? LT_Bracket2 :
-                    c == '(' ? LT_Bracket3 :
+                                                    c == '\r' ? LT_LineSplitChr :
+                                                            c == '\n' ? LT_LineSplitChr :
 
-                    c == '\0' ? LT_End :
-                    IsIdent(c) ? LT_Indent :
-                    LT_Unknown;
+                                                                    c == '{' ? LT_Bracket1 :
+                                                                            c == '[' ? LT_Bracket2 :
+                                                                                    c == '(' ? LT_Bracket3 :
+
+                                                                                            c == '\0' ? LT_End :
+                                                                                                    IsIdent(c) ? LT_Indent :
+                                                                                                            LT_Unknown;
         }
-        
+
         @Override
-        protected void PassSpace()
-        {
+        protected void PassSpace() {
             while (i < S.length && " \t".indexOf(S[i]) >= 0) i++;
             SetLast();
         }
     }
-    
-	public String Serialize() {
-		StringBuilder sbuilder = new StringBuilder();
+
+    public String Serialize() {
+        StringBuilder sbuilder = new StringBuilder();
         // 添加表头字段名
-        sbuilder.append(gs.JoinArray(columns.toArray(new DataColumn[0]), "|", 
-        		new gi.IFunc1<DataColumn, String>() { @Override public String Call(DataColumn dc) { return dc.getColumnName(); } })
-        	);
+        sbuilder.append(gs.JoinArray(columns.toArray(new DataColumn[0]), "|",
+                new gi.IFunc1<DataColumn, String>() {
+                    @Override
+                    public String Call(DataColumn dc) {
+                        return dc.getColumnName();
+                    }
+                })
+        );
         sbuilder.append("\r\n");
         //foreach (DataColumn col in dt.Columns)
         //{
@@ -548,211 +550,190 @@ public final class DataTable {
         //}
 
         //// 返回表行数据
-        for(DataRow dr : rows)
-        {
-            sbuilder.append(gs.JoinArray(dr.ItemArray, "|", 
-            		new gi.IFunc1<Object, String>() { @Override public String Call(Object val) { return gv.Serialize(val); } })
-            	);
+        for (DataRow dr : rows) {
+            sbuilder.append(gs.JoinArray(dr.ItemArray, "|",
+                    new gi.IFunc1<Object, String>() {
+                        @Override
+                        public String Call(Object val) {
+                            return gv.Serialize(val);
+                        }
+                    })
+            );
             sbuilder.append("\r\n");
         }
         return sbuilder.toString();
-	}
+    }
 
-	public Object[] getColValues(String columnName) {
-		return rows.getColValues(columnName);
-	}
-    
+    public Object[] getColValues(String columnName) {
+        return rows.getColValues(columnName);
+    }
+
     public void setColValue(String columnName, Object value) {
-    	rows.setColValue(columnName, value);
-	}
+        rows.setColValue(columnName, value);
+    }
 
-	public String[] getColStrValues(String columnName) {
-		return rows.getColStrValues(columnName);
-	}
+    public String[] getColStrValues(String columnName) {
+        return rows.getColStrValues(columnName);
+    }
 
-	public int[] getColIntValues(String columnName) {
-		return rows.getColIntValues(columnName);
-	}
+    public int[] getColIntValues(String columnName) {
+        return rows.getColIntValues(columnName);
+    }
 
-	public ArrayList<Object> getColValueList(String columnName) {
-		DataColumn col = columns.get(columnName);
-		if(col == null) return null;
-		int colIndex = col.getColumnIndex();
-		ArrayList<Object> list = new ArrayList<Object>();
-		for (DataRow dr : rows)
-			list.add(dr.getValue(colIndex));
-		return list;
-	}
+    public ArrayList<Object> getColValueList(String columnName) {
+        DataColumn col = columns.get(columnName);
+        if (col == null) return null;
+        int colIndex = col.getColumnIndex();
+        ArrayList<Object> list = new ArrayList<Object>();
+        for (DataRow dr : rows)
+            list.add(dr.getValue(colIndex));
+        return list;
+    }
 
-	public String[] getStrValues(gi.IFunc1<DataRow, String> func) {
-		String[] ss = new String[rows.size()];
-		int i = 0;
-		for (DataRow dr: rows)
-			ss[i++] = func.Call(dr);
-		return ss;
-	}
-
-
+    public String[] getStrValues(gi.IFunc1<DataRow, String> func) {
+        String[] ss = new String[rows.size()];
+        int i = 0;
+        for (DataRow dr : rows)
+            ss[i++] = func.Call(dr);
+        return ss;
+    }
 
 
+    /// <summary>
+    /// 解析文本并创建 DataTable
+    /// </summary>
+    public static DataTable CreateTable(String tableName, String Text) {
+        TableLex lex = new TableLex(Text);
+        DataTable dt = ParseTableColumns(tableName, lex);
+        ParseTableRows(dt, lex);
+        return dt;
+    }
+
+    public static DataTable Create(String Text) {
+        return CreateTable("", Text);
+    }
+
+    public static DataTable ParseTableColumns(String tableName, TableLex lex) {
+        final DataTable dt = new DataTable();
+        dt.tableName = tableName;
+
+        ParseTableText(lex, new gi.Action2<Integer, String[]>() {
+            @Override
+            public void Execute(Integer index, String[] temp) {
+                for (int i = 0; i <= index; i++) {
+                    DataColumn dc = new DataColumn();
+                    gs.CutResult cr = gs.Cut(temp[i], " ");
+
+                    dc.setColumnName(cr.S1);
+                    if (!cr.S2.isEmpty()) {
+                        Class<?> type = gv.GetTypeByName(cr.S2);
+                        if (type != null) dc.setDataType(type);
+                    }
+                    dt.columns.add(dc);
+                }
+            }
+        }, true);
+        return dt;
+    }
+
+    public static Object ConvertToDbValue(String value, Class<?> type) {
+        if (!(type == String.class) && value == null) return null;
+        return gv.ConvertType(value, type);
+    }
+
+    public static void ParseTableRows(final DataTable dt, TableLex lex) {
+        final int colCount = dt.columns.size();
+        final Class<?>[] colTypes = dt.columns.getColClasses();
+
+        ParseTableText(lex, new gi.Action2<Integer, String[]>() {
+            @Override
+            public void Execute(Integer index, String[] temp) {
+                DataRow dr = dt.addRow();
+                for (int i = 0; i < colCount; i++)
+                    try {
+                        dr.ItemArray[i] = ConvertToDbValue(i > index ? "" : temp[i], colTypes[i]);
+                    } catch (Exception ex) {
+                        DataColumn dc = dr.getTable().columns.get(i);
+                        int n = dr.getTable().rows.size() + 1;
+                        String s = gs.JoinArray(ArrayTools.Copy(temp, 0, i + 1), "|");
+                        ExProc.ThrowMsgEx("创建数据表 " + dt.getTableName() + " 失败! [行: " + n + "列: " + (i + 1) + "]\n" +
+                                        "无效列值 " + dc.getColumnName() + ": " + temp[i] + "[" + dc.getDataType() + "]\n" +
+                                        s
+                                , ex);
+                    }
+                ArrayTools.Init(temp, colCount, "");
+            }
+        }, false);
+    }
+
+    private static void ParseTableText(TableLex lex, gi.Action2<Integer, String[]> action, Boolean onlyOnce) {
+        String[] temp = new String[1024];
+        ArrayTools.Init(temp, "");
+        int token = lex.GetToken();
+        int index = -1;
+        while (true) {
+            if (gv.In(token, SimpleLex.LT_Indent, SimpleLex.LT_String, SimpleLex.LT_Unknown)) {
+                if (index < 0) index = 0;
+                if (temp[index].isEmpty())
+                    temp[index] = lex.Text;
+                else
+                    temp[index] += " " + lex.Text;
+            } else if (token == SimpleLex.LT_ItemSplitChr) {
+                if (index < 0) index = 0;
+                index++;
+            } else if (token == SimpleLex.LT_LineSplitChr || token == SimpleLex.LT_End) {
+                if (index >= 0) {
+                    action.Execute(index, temp);
+                    if (onlyOnce) break;
+                }
+                index = -1;
+            }
+            if (token == SimpleLex.LT_End) break;
+            token = lex.GetToken();
+        }
+    }
 
 
-	/// <summary>
-	/// 解析文本并创建 DataTable
-	/// </summary>
-	public static DataTable CreateTable(String tableName, String Text)
-	{
-		TableLex lex = new TableLex(Text);
-		DataTable dt = ParseTableColumns(tableName, lex);
-		ParseTableRows(dt, lex);
-		return dt;
-	}
+    public void ClearRows() {
+        rows.clear();
+    }
 
-	public static DataTable Create(String Text)
-	{
-		return CreateTable("", Text);
-	}
+    public DataRowCollection Select(EnumSet<DataRowState> states) {
+        DataRowCollection rs = new DataRowCollection(this);
+        for (DataRow dr : rows)
+            if (states.contains(dr.getState())) rs.add(dr);
 
-	public static DataTable ParseTableColumns(String tableName, TableLex lex)
-	{
-		final DataTable dt = new DataTable();
-		dt.tableName = tableName;
+        return rs;
+    }
 
-		ParseTableText(lex, new gi.Action2<Integer, String[]>() {
-			@Override
-			public void Execute(Integer index, String[] temp) {
-				for (int i = 0; i <= index; i++)
-				{
-					DataColumn dc = new DataColumn();
-					gs.CutResult cr = gs.Cut(temp[i], " ");
+    public void AcceptChanges() {
+        for (DataRow dr : getChanges())
+            dr.AcceptChanges();
+    }
 
-					dc.setColumnName(cr.S1);
-					if (!cr.S2.isEmpty())
-					{
-						Class<?> type = gv.GetTypeByName(cr.S2);
-						if (type != null) dc.setDataType(type);
-					}
-					dt.columns.add(dc);
-				}
-			}
-		}, true);
-		return dt;
-	}
+    public OMap getMap(String colName) {
+        OMap map = new OMap();
+        for (DataRow dr : rows)
+            map.put(dr.getStrVal("Key"), dr);
+        return map;
+    }
 
-	public static Object ConvertToDbValue(String value, Class<?> type)
-	{
-		if (!(type == String.class) && value == null) return null;
-		return gv.ConvertType(value, type);
-	}
+    public DataTable GroupBy(SelectColList selects) {
+        DataTable dt = Copy();
+        return dt.getRows().GroupBy(selects);
+    }
 
-	public static void ParseTableRows(final DataTable dt, TableLex lex)
-	{
-		final int colCount = dt.columns.size();
-		final Class<?>[] colTypes = dt.columns.getColClasses();
+    public DataTable GroupBy(String sql) {
+        return GroupBy(SqlUtils.ParserSqlSelect(sql));
+    }
 
-		ParseTableText(lex, new gi.Action2<Integer, String[]>() {
-			@Override
-			public void Execute(Integer index, String[] temp) {
-				DataRow dr = dt.addRow();
-				for (int i = 0; i < colCount; i++)
-					try
-					{
-						dr.ItemArray[i] = ConvertToDbValue(i > index ? "" : temp[i], colTypes[i]);
-					}
-					catch (Exception ex)
-					{
-						DataColumn dc = dr.getTable().columns.get(i);
-						int n = dr.getTable().rows.size() + 1;
-						String s = gs.JoinArray(ArrayTools.Copy(temp, 0, i + 1), "|");
-						ExProc.ThrowMsgEx("创建数据表 " + dt.getTableName() + " 失败! [行: " + n + "列: " + (i + 1) + "]\n" +
-										"无效列值 " + dc.getColumnName() + ": " + temp[i] + "[" + dc.getDataType() + "]\n" +
-										s
-								, ex);
-					}
-				ArrayTools.Init(temp, colCount, "");
-			}
-		}, false);
-	}
-
-	private static void ParseTableText(TableLex lex, gi.Action2<Integer, String[]> action, Boolean onlyOnce)
-	{
-		String[] temp = new String[1024];
-		ArrayTools.Init(temp, "");
-		int token = lex.GetToken();
-		int index = -1;
-		while (true)
-		{
-			if (gv.In(token, SimpleLex.LT_Indent, SimpleLex.LT_String, SimpleLex.LT_Unknown))
-			{
-				if (index < 0) index = 0;
-				if (temp[index].isEmpty())
-					temp[index] = lex.Text;
-				else
-					temp[index] += " " + lex.Text;
-			}
-			else if (token == SimpleLex.LT_ItemSplitChr)
-			{
-				if (index < 0) index = 0;
-				index++;
-			}
-			else if (token == SimpleLex.LT_LineSplitChr || token == SimpleLex.LT_End)
-			{
-				if (index >= 0)
-				{
-					action.Execute(index, temp);
-					if (onlyOnce) break;
-				}
-				index = -1;
-			}
-			if (token == SimpleLex.LT_End) break;
-			token = lex.GetToken();
-		}
-	}
-
-
-
-
-
-	public void ClearRows(){
-		rows.clear();
-	}
-
-	public DataRowCollection Select(EnumSet<DataRowState> states)
-	{
-		DataRowCollection rs = new DataRowCollection(this);
-		for (DataRow dr : rows)
-			if(states.contains(dr.getState())) rs.add(dr);
-		
-		return rs;
-	}
-	
-	public void AcceptChanges(){
-		for (DataRow dr : getChanges())
-			dr.AcceptChanges();
-	}
-	
-	public OMap getMap(String colName){
-		OMap map = new OMap();
-		for (DataRow dr : rows)
-			map.put(dr.getStrVal("Key"), dr);
-		return map;
-	}
-
-	public DataTable GroupBy(SelectColList selects) {
-		DataTable dt = Copy();
-		return dt.getRows().GroupBy(selects);
-	}
-
-	public DataTable GroupBy(String sql) {
-		return GroupBy(SqlUtils.ParserSqlSelect(sql));
-	}
-
-	public void SetColsType(String config){
-		DataColumnCollection cfgCols = new DataColumnCollection(config);
-		for (DataColumn dcCfg : cfgCols) {
-			DataColumn dc = columns.get(dcCfg.getColumnName());
-			if(dc == null || dc.getDataType() == dcCfg.getDataType()) continue;;
-			dc.setDataType(dcCfg.getDataType());
-		}
-	}
+    public void SetColsType(String config) {
+        DataColumnCollection cfgCols = new DataColumnCollection(config);
+        for (DataColumn dcCfg : cfgCols) {
+            DataColumn dc = columns.get(dcCfg.getColumnName());
+            if (dc == null || dc.getDataType() == dcCfg.getDataType()) continue;
+            ;
+            dc.setDataType(dcCfg.getDataType());
+        }
+    }
 }

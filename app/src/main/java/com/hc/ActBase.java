@@ -1,7 +1,11 @@
 package com.hc;
 
 
+import android.Manifest;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.dev.BarcodeScannerBLE;
 import com.dev.HyScanner;
 import com.zxing.ActCapture;
 
@@ -77,6 +82,26 @@ public class ActBase extends ActivityEx {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		MyApp.CheckEmptyInit();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			// Android M Permission check
+			if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+			}
+		}
+
+		BarcodeScannerBLE.Init();
+//		BarcodeScannerBLE.setListener((ble, barcode) -> {
+//			HandleSNo(barcode);
+//		});
+		BarcodeScannerBLE.setListener(
+			new BarcodeScannerBLE.OnReceiveDataListener() {
+				  @Override
+				  public void OnReceive(BluetoothDevice device, String barcode) {
+						  HandleSNo(barcode);
+				  }
+			}
+		);
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
@@ -107,6 +132,8 @@ public class ActBase extends ActivityEx {
     public void onDestroy() {
         if(DecoderMode == HyScanner.Mode.Enabled)
         	HyScanner.Close(true);
+
+		BarcodeScannerBLE.Destory();
         super.onStop();
     }
 	
@@ -151,6 +178,10 @@ public class ActBase extends ActivityEx {
 	public void ActOpenDecoder() {
         if(DecoderMode == HyScanner.Mode.Ignore) return;
      	setDecoderEnabled(!(DecoderMode == HyScanner.Mode.Enabled));
+	}
+
+	public void ActScanBLE() {
+        BarcodeScannerBLE.Start();
 	}
 
 	public void ActScanQR() {
@@ -232,6 +263,7 @@ public class ActBase extends ActivityEx {
 		else
 			rows.SetRowValues(new Object[][] {
 					new Object[] { "ScanQR", "扫二维码", null },
+					new Object[] { "ScanBLE", "蓝牙扫码", null },
 				});
 	}
 

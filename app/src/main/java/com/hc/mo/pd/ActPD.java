@@ -166,7 +166,9 @@ public class ActPD extends ActBase {
 				
 		        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		    		SelectInvItem(dtInv.getRow(position));
-		        	setWorkState(WorkState.Normal, PAGE_DETAIL);
+
+                    PD.StatQtyInfo sq = PD.StatRowQty(drInv);
+		        	if(sq != null && sq.getPdExtraQty() > 0) setWorkState(WorkState.Normal, PAGE_DETAIL);
 		        }  
 		          
 		    });  
@@ -292,7 +294,7 @@ public class ActPD extends ActBase {
 	        		View vImg = convertView.findViewById(2030);
 	        		View vSelect = convertView.findViewById(2036);
 	        		TextView tvInfo = type.as(convertView.findViewById(2031), TextView.class);
-	        		ParamList pl = new ParamList(dr.$("Ext"));
+	        		ParamList pl = new ParamList(dr.getValue("Ext"));
 	        		
 	        		tvHeadInfo.setText(d.getStockName(dr.getIntVal("YSID")));
 	        		tvDate.setText(gv.SDate(dr.getDate("PDDate"), "yyyy-MM-dd HH:mm"));
@@ -561,7 +563,7 @@ public class ActPD extends ActBase {
 		StockID = drPD == null ? 0 : drPD.getIntVal("YSID");
 		tvTitle.setText(StockID > 0 ? "盘点" : "盘点 - " + d.getStockName(StockID));
 		
-		String sql = "select * from PdInventory pi join Item ic on pi.FItemID=ic.FItemID"  +
+		String sql = "select * from PdInventory pi left join Item ic on pi.FItemID=ic.FItemID"  +
     				 " where PDID=? order by pi.state asc,FNumber"; 
 		
 		dtInv = DBLocal.OpenTable(DBHelper.Cfg_PdInventory + "|" + DBHelper.Cfg_Item, sql, mPDID);
@@ -590,12 +592,14 @@ public class ActPD extends ActBase {
 	
 	private void SelectInvItem(DataRow dr) {
 		if(drInv == dr) return;
+
 		drInv = dr;
+
 		drDetail = null;
+
 		InvItems = dr == null ? new DataRowCollection(dtDetail) :
 				  (DataRowCollection)dr.getValue("Items");
-		if(mWorkState == WorkState.Normal)
-			listPdAdapter.Select(drInv);
+		if(mWorkState == WorkState.Normal) listPdAdapter.Select(drInv);
         drInv = dr;
 	}
 	
@@ -779,11 +783,11 @@ public class ActPD extends ActBase {
     {
     	ParamList pl;
     	try {
-        	pl = WS.IsConnected() ? type.as(WS.GetProductTraceInfo(SNo), ParamList.class) :
+        	pl = //WS.IsConnected() ? type.as(WS.GetProductTraceInfo(SNo), ParamList.class) :
         		Bill.GetLocalSnInfo(SNo, true);
 		} catch (Exception e) {
-			if(ExProc.IsNetException(e))
-			    pl = Bill.GetLocalSnInfo(SNo, false);
+//			if(ExProc.IsNetException(e))
+//			    pl = Bill.GetLocalSnInfo(SNo, false);
             throw e;
 		}
     	//int FItemID = DBLocal.ExecuteIntScalar("select FItemID from SN where FSerialNo=?",  SNo);
@@ -802,6 +806,7 @@ public class ActPD extends ActBase {
 		dr.updateValue("Items", getNewDetailRows()); 
 		dr.updateValue("FItemID",  pl.IntValue("FItemID"));
 		dr.updateValue("FName",  pl.SValue("FName"));
+		dr.updateValue("SName",  pl.SValue("SName"));
 		dr.updateValue("FUnit",  pl.SValue("FUnit"));		
 		dr.updateValue("FModel",  pl.SValue("FModel"));	
 		dr.updateValue("Qty", 0);				// 数量
@@ -876,7 +881,9 @@ public class ActPD extends ActBase {
     }  
     
     private void AddItem(String code) {
-		String sn = pu.getSNo(code);
+		ParamList plSN = pu.ParseJDSN(code);
+
+		String sn = plSN.SValue("SN");
     	if(sn.isEmpty() || drPD == null) return;
     	try {
         	ParamList pl = GetSnInfo(sn);
@@ -885,7 +892,7 @@ public class ActPD extends ActBase {
         	int FItemID = pl.IntValue("FItemID");
         	if(FItemID <= 0)
 			{
-    			ParamList plProduct =  pu.GetProdcutBySN(code);
+    			ParamList plProduct =  pu.GetProductBySN(code);
     			if(plProduct != null)
     			{
     				plProduct.CopyTo(pl);
@@ -893,13 +900,17 @@ public class ActPD extends ActBase {
     			}
 			}
 
+
         	DataRow dr = FindPdInvRow(FItemID);
     		SelectInvItem(dr);
     		if(dr == null)
     		{
     			//int FItemID = d.getFItemID(sn);
-        		if(FItemID <= 0) ExProc.ThrowMsgEx("无法找到当前流水号“" + sn + "”对应产品！");
+        		if(FItemID <= 0) {
+                    if(!pu.isValidSNo(sn)) ExProc.ThrowMsgEx("无效流水号“" + sn + "”！");
 
+                 //   ExProc.ThrowMsgEx("无法找到当前流水号“" + sn + "”对应产品！");
+                }
     			SelectInvItem(CreateInvDataRow(pl));
     			dtInv.addRow(drInv);
     			//ExProc.ThrowMsgEx("库存产品不包含当前流水号！");

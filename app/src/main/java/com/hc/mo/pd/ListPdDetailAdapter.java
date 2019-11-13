@@ -78,13 +78,16 @@ public class ListPdDetailAdapter extends HyListAdapter {
 //						dr.getValue("ExpDate")
 //				);
 
-		String info = gs.JoinArray(new String[] {
-				"NO. " + dr.getValue("SNo"),
+		String info = "NO. " + dr.getValue("SNo");
+		int IID = dr.getIntVal("IID");
+		if(IID > 0)
+			info = gs.JoinArray(new String[] {
+				info,
 				dr.getStrVal("FName"),
 				"规格型号: " + dr.getStrVal("FModel"),
 				"产品批号: " + dr.getStrVal("BatchNo"),
 				"产品效期: " + gs.Connect(dr.getStrVal("MfgDate"), dr.getStrVal("ExpDate"), " / "),
-		}, "\n");
+			}, "\n");
 
 		clBG = Color.WHITE;
 		DrawBG(vInfo, convertView, clBG);
@@ -100,7 +103,6 @@ public class ListPdDetailAdapter extends HyListAdapter {
 		info = info.replace("\n", "<br>");
 		//vi.tvInfo.setText(info);
 		vi.tvInfo.setText(Html.fromHtml(info));
-
 	}
 }
 

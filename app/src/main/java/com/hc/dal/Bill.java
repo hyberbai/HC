@@ -5,17 +5,17 @@ import android.graphics.Color;
 import com.hc.SysData;
 import com.hc.db.DBLocal;
 import com.hc.mo.bill.ProductRelpace;
+import com.hc.pu;
 
 import java.util.Date;
 
 import hylib.data.DataRow;
 import hylib.data.DataTable;
 import hylib.toolkits.ArrayTools;
+import hylib.toolkits.ExProc;
 import hylib.toolkits.SpannableStringHelper;
 import hylib.toolkits.gs;
 import hylib.toolkits.gv;
-import hylib.toolkits.type;
-import hylib.ui.dialog.Msgbox;
 import hylib.util.Param;
 import hylib.util.ParamList;
 
@@ -135,25 +135,32 @@ public class Bill {
 				"select * from Item ic, SN s where ic.FItemID=s.FItemID and FSerialNo=?", SNo
 				);
 		if(dt.RowCount() == 0) {
-            if(tryConnServer && dt.isEmpty() && SN.IsCorrectFormat(SNo) && Msgbox.Ask("无法获取流水号，是否远程连接服务器获取数据？"))
-            {
-                //if(!Network.isMobileAvailable()) ExProc.ThrowMsgEx("无可用网络！请检查地址设置是否正确！");
-                return type.as(WS.GetProductTraceInfo(SNo), ParamList.class);
-            }
-		    return new ParamList();//ExProc.ThrowMsgEx("数据库查无此流水号[" + SNo + "]记录！");
+            if(!pu.isValidSNo(SNo)) ExProc.ThrowMsgEx("无效流水号“" + SNo + "”！");
+//            if(tryConnServer && dt.isEmpty() && SN.IsCorrectFormat(SNo) && Msgbox.Ask("无法获取流水号，是否远程连接服务器获取数据？"))
+//            {
+//                //if(!Network.isMobileAvailable()) ExProc.ThrowMsgEx("无可用网络！请检查地址设置是否正确！");
+//                return type.as(WS.GetProductTraceInfo(SNo), ParamList.class);
+//            }
+
+            pl.SetValue("FItemID", 0);   // 产品编码
+            pl.SetValue("FName", "未同步产品");
+            pl.SetValue("SName", "未同步产品");
+            //ExProc.ThrowMsgEx("数据库查无此流水号[" + SNo + "]记录！");
         }
+        else{
+            DataRow dr = dt.getRow(0);
 
-		DataRow dr = dt.getRow(0);
-
-        pl.SetValueByDataRowItem(dr, "FItemID");   // 产品编码
-        pl.SetValueByDataRowItem(dr, "FNumber");   // 产品编码
-        pl.SetValueByDataRowItem(dr, "FName");     // 产品名称
-        pl.SetValueByDataRowItem(dr, "FBatchNo");  // 产品批号
-        pl.SetValueByDataRowItem(dr, "FModel");    // 规格型号
-        pl.SetValueByDataRowItem(dr, "FSerialNo"); // 流水号
-        pl.SetValueByDataRowItem(dr, "FKFDate"); 	// 生产日期
-        pl.SetValueByDataRowItem(dr, "FPeriodDate");// 有效期至
-        pl.SetValueByDataRowItem(dr, "FKFPeriod"); 	// 保质期
+            pl.SetValueByDataRowItem(dr, "FItemID");   // 产品编码
+            pl.SetValueByDataRowItem(dr, "FNumber");   // 产品编码
+            pl.SetValueByDataRowItem(dr, "FName");     // 产品名称
+            pl.SetValueByDataRowItem(dr, "SName");     // 产品简称
+            pl.SetValueByDataRowItem(dr, "FBatchNo");  // 产品批号
+            pl.SetValueByDataRowItem(dr, "FModel");    // 规格型号
+            pl.SetValueByDataRowItem(dr, "FSerialNo"); // 流水号
+            pl.SetValueByDataRowItem(dr, "FKFDate"); 	// 生产日期
+            pl.SetValueByDataRowItem(dr, "FPeriodDate");// 有效期至
+            pl.SetValueByDataRowItem(dr, "FKFPeriod"); 	// 保质期
+        }
 
     	return new ParamList("info", pl);
     }

@@ -117,7 +117,7 @@ public class ActSy extends ActBase {
 
         	if(sy_data == null || sy_data.isEmpty()) {
 
-    			ParamList pl = pu.GetProdcutBySN(code);
+    			ParamList pl = pu.GetProductBySN(code);
     			if(pl == null) ExProc.ThrowMsgEx("无效流水号！ " + SNo);
 				sy_data = new ParamList();
 				sy_data.set("info", pl);

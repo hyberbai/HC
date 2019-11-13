@@ -38,7 +38,7 @@ public class ActLoading extends ActivityEx
 					int usercount = DBLocal.ExecuteIntScalar("select count(*) from user");
 					if(usercount == 0)
 					{
-						$Set(R.id.tv_loading_msg, "初始化数据库...");
+						$Set(R.id.tv_loading_msg, "初始化数据库，请稍候...");
 						MainActions.SynAllData(false);
 					}
 				}
