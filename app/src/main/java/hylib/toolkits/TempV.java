@@ -1,9 +1,5 @@
 package hylib.toolkits;
 
-import com.hc.g;
-
-import android.R.bool;
-
 public class TempV {
 	public int I;
 	public String S;

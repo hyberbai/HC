@@ -1,7 +1,6 @@
 package hylib.db;
 
-public enum SqlDbType
-{
+public enum SqlDbType {
     BigInt,
 
     // System.Byte 类型的 System.Array。二进制数据的固定长度流，范围在 1 到 8,000 个字节之间。
